@@ -15,6 +15,13 @@
 
 *Sistema de gestión de ventas para un emprendimiento de accesorios artesanales. Permite administrar productos y su stock, registrar ventas y llevar un control de clientes. Además, permite gestionar los usuarios que acceden al sistema según su rol. El sistema busca automatizar tareas que actualmente se realizan de forma manual, centralizando la información de ventas, productos, stock y clientes en un solo lugar.*
 
+### Tecnologías utilizadas
+
+- Backend: Node.js con TypeScript
+- Frontend: a definir
+- Base de datos: a definir
+- Control de versiones: Git y GitHub
+  
 ### Modelo
 https://app.diagrams.net/#G1T11jYeY_qR7FxvZmBbJ7FdSLdI3C0bG_#%7B%22pageId%22%3A%22FupV3o8o4jS1qKbRf3Cx%22%7D
 
