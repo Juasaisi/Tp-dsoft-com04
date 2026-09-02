@@ -13,7 +13,7 @@
 ## Tema
 ### Descripción
 
-*Sistema de gestión para un emprendimiento de accesorios artesanales. Permite administrar el stock de productos y materiales, registrar ventas y encargues, y llevar un control de clientes. Automatiza tareas que actualmente se realizan de forma manual, centralizando la información del negocio en un solo lugar.*
+*Sistema de gestión de ventas para un emprendimiento de accesorios artesanales. Permite administrar productos y su stock, registrar ventas y llevar un control de clientes. Además, permite gestionar los usuarios que acceden al sistema según su rol. El sistema busca automatizar tareas que actualmente se realizan de forma manual, centralizando la información de ventas, productos, stock y clientes en un solo lugar.*
 
 ### Modelo
 https://app.diagrams.net/#G1T11jYeY_qR7FxvZmBbJ7FdSLdI3C0bG_#%7B%22pageId%22%3A%22FupV3o8o4jS1qKbRf3Cx%22%7D
