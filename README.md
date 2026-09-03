@@ -49,13 +49,9 @@ CUU/Epic | 1. Registrar una venta: seleccionar cliente, agregar uno o más produ
 
 ### Alcance Adicional Voluntario
 
-### Alcance Adicional Voluntario
-
 Req | Detalle
---- | ---
-Listados | 1. Listado de productos con filtro por bajo stock
- | 2. Listado de ventas con filtro por rango de fechas
- | 3. Listado de clientes con historial de ventas
-CUU/Epic | 1. Consultar productos con bajo stock
- | 2. Consultar resumen de ventas e ingresos por período
-Otros | 1. Mostrar alertas de stock bajo
+|:-|:-|
+|Listados | 1. Listado de productos con filtro por bajo stock<br>2. Listado de ventas con filtro por rango de fechas<br>3. Listado de clientes con historial de ventas
+|CUU/Epic | 1. Consultar productos con bajo stock
+| 2. Consultar resumen de ventas e ingresos por período|
+|Otros | 1. Mostrar alertas de stock bajo
