@@ -32,13 +32,11 @@ https://app.diagrams.net/#G1T11jYeY_qR7FxvZmBbJ7FdSLdI3C0bG_#%7B%22pageId%22%3A%
 
 Regularidad:
 Req | Detalle
---- | ---
-CRUD simple | 1. CRUD Producto (nombre, descripción, precio, stock)
- | 2. CRUD Cliente (nombre, apellido, teléfono, email)
-CRUD dependiente | 1. CRUD Venta (depende de Cliente y se compone de DetalleVenta asociados a Producto)
-Listado + detalle | 1. Listado de productos filtrado por nombre o stock → detalle completo del producto
- | 2. Listado de ventas filtrado por rango de fechas → detalle completo de la venta, cliente, productos, cantidades, subtotales y total
-CUU/Epic | 1. Registrar una venta con uno o más productos y cantidades, calculando subtotales y total
+|:-|:-|
+|CRUD simple | 1. CRUD Producto<br>2. CRUD Cliente|
+CRUD dependiente | 1. CRUD Venta {depende de} CRUD Cliente y se compone de DetalleVenta asociados a Producto|
+|Listado + detalle | 1. Listado de productos filtrado por nombre o stock → detalle completo del producto<br>2. Listado de ventas filtrado por rango de fechas → detalle completo de la venta, cliente, productos, cantidades, subtotales y total
+CUU/Epic | 1. Registrar una venta con uno o más productos y cantidades, calculando subtotales y total|
 
 
 Adicionales para Aprobación:
