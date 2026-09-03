@@ -33,8 +33,8 @@ https://app.diagrams.net/#G1T11jYeY_qR7FxvZmBbJ7FdSLdI3C0bG_#%7B%22pageId%22%3A%
 Regularidad:
 |Req|Detalle|
 |:-|:-|
-|CRUD simple|1. CRUD Producto (nombre, descripción, precio, stock) <br>2.  CRUD Cliente (nombre, contacto)
-|CRUD dependiente|1. 1. CRUD Venta (depende de Producto y Cliente)
+|CRUD simple|1. CRUD Producto (nombre, descripción, precio, stock) <br>2.  CRUD Cliente (nombre, apellido, telefono, email)
+|CRUD dependiente|1. 1. CRUD Venta {depende de} Producto y Cliente)
 |Listado<br>+<br>detalle| 1. Listado de productos → detalle completo  <br>2. Listado de ventas → detalle con productos y total
 
 
