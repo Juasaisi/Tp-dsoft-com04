@@ -42,13 +42,9 @@ CUU/Epic | 1. Registrar una venta con uno o más productos y cantidades, calcula
 Adicionales para Aprobación:
 
 Req | Detalle
---- | ---
-CRUD | 1. CRUD Producto
- | 2. CRUD Cliente
- | 3. CRUD Venta
- | 4. CRUD Usuario
-CUU/Epic | 1. Registrar una venta: seleccionar cliente, agregar uno o más productos y cantidades, generar los detalles de venta y calcular el total
- | 2. Actualizar y controlar el stock de los productos a partir de las ventas registradas
+|:-|:-|
+|CRUD | 1. CRUD Producto<br>2. CRUD Cliente<br>3. CRUD Venta<br>4. CRUD Usuario|
+CUU/Epic | 1. Registrar una venta: seleccionar cliente, agregar uno o más productos y cantidades, generar los detalles de venta y calcular el total<br>2. Actualizar y controlar el stock de los productos a partir de las ventas registradas
 
 
 ### Alcance Adicional Voluntario
