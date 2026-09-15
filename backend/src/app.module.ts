@@ -6,6 +6,8 @@ import { ProductosModule } from './modules/productos/productos.module';
 import { ClienteModule } from './modules/cliente/cliente.module';
 import { MaterialModule } from './modules/material/material.module';
 import { VentaModule } from './modules/venta/venta.module';
+import { CategoriaModule } from './modules/categoria/categoria.module';
+import { UsuarioModule } from './modules/usuario/usuario.module';
 
 
 @Module({
@@ -14,7 +16,9 @@ import { VentaModule } from './modules/venta/venta.module';
   ProductosModule,
   ClienteModule,
   MaterialModule,
-  VentaModule],
+  VentaModule,
+  CategoriaModule,
+  UsuarioModule, ]
   controllers: [],
   providers: [],
   
