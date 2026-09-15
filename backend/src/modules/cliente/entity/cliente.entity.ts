@@ -22,6 +22,7 @@ export class Cliente{
     @Column({type: String, nullable: false, length: 30})
     email!: string;
 
+
     @Column({type: String, nullable: false, default: false})
     delete?: boolean;
 

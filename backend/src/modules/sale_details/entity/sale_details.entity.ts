@@ -1,21 +1,20 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("materiales")
+@Entity("detalle venta")
 
-export class Material {
+export class Sale_details {
 
   @PrimaryGeneratedColumn()
   idsale_d!:number;
 
- @Column({type:Number, nullable:false, length:30})
+ @Column({type:Number, nullable:false})
  cantidad!:number;
  
-  @Column({type:Number, nullable:false, length:150})
+  @Column({type:Number, nullable:false})
   preciounitario!:number;
 
-  @Column({type:Number, nullable:false, default:false})
+  @Column({type:Number, nullable:false})
   subtotal!: number;
 
-  
 
 }
