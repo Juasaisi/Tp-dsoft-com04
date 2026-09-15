@@ -6,7 +6,6 @@ export class UsuarioDto {
 
     @IsNumber()
     @IsPositive()
-    @IsNotEmpty()
     idUsuario!:number;
 
     @IsString()
