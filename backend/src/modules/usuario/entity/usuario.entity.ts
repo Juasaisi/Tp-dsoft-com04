@@ -23,7 +23,7 @@ export class Usuario {
   rol!:string;
 
   @Column({type:Boolean, default:false})
-  eliminado!:string;
+  eliminado!:boolean;
 
 
 }
