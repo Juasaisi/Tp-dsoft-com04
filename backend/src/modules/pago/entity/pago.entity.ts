@@ -7,7 +7,7 @@ export class Pago {
 
 
 @PrimaryGeneratedColumn()
-idpago!:number;
+idPago!:number;
 
 @Column({type:Date, nullable:false})
 fecha!:Date;

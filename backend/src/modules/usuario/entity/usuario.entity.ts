@@ -16,8 +16,9 @@ export class Usuario {
   @Column({type:String, nullable:false, unique: true, length:50})
   email!:string;
 
-  @Column({type:String, nullable:false, length:30})
-  contraseña!:string;
+  @Column({type:String, nullable:false, length:255})
+  passwordHash!:string; 
+  // explicacion
 
   @Column({type:String, nullable:false, length:10})
   rol!:string;
