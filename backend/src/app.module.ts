@@ -8,6 +8,7 @@ import { MaterialModule } from './modules/material/material.module';
 import { VentaModule } from './modules/venta/venta.module';
 import { CategoriaModule } from './modules/categoria/categoria.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
@@ -18,7 +19,8 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
   MaterialModule,
   VentaModule,
   CategoriaModule,
-  UsuarioModule, ]
+  UsuarioModule,
+  AuthModule, ]
   controllers: [],
   providers: [],
   
