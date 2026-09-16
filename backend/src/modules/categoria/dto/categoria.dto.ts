@@ -9,9 +9,6 @@ export class CategoriaDto {
  @IsNotEmpty()
  name!: string;
 
- @IsString()
- @IsNotEmpty()
- descripcion!: string;
 
  @IsBoolean()
  @IsOptional()

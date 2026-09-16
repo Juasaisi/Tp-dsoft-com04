@@ -10,9 +10,7 @@ export class Categoria{
 
     @Column({type: String, nullable: false, length: 10})
     name!: string;
-    
-    @Column({type: String, nullable: false, length: 150})
-    decripcion!: string;
+
 
     @Column({type: String, nullable: false, default: false})
     activo?: boolean;
