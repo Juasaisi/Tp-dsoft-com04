@@ -1,15 +1,8 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsEmail } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsOptional, IsIn, IsString, IsEmail } from "class-validator";
 
 
 export class UsuarioDto {
     //id nombre email contraseña rol
-
-
-
-
-    @IsNumber()
-    @IsPositive()
-    idUsuario!:number;
 
 
     @IsString()
@@ -21,11 +14,16 @@ export class UsuarioDto {
     @IsNotEmpty()
     email!: string;
 
-
-    //contraseña
-
+    @IsEmail()
+    @IsNotEmpty()
+    contraseña!: string;
 
     @IsString()
     @IsNotEmpty()
+    @IsIn(['ADMIN', 'VENDEDOR'])
     rol!: string;
+
+    @IsBoolean()
+    @IsOptional()
+    eliminado?: boolean;
 }
