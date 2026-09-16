@@ -1,16 +1,30 @@
-import {IsEmail, IsNotEmpty, IsString, MinLength} from 'class-validator';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { Strategy } from 'passport-local';
 
-export class RegistroDto {
-  @IsString()
-  @IsNotEmpty()
-  nombre!: string;
+import { AuthService } from '../auth.service';
 
-  @IsEmail()
-  @IsNotEmpty()
-  email!: string;
+@Injectable()
+export class LocalStrategy extends PassportStrategy(Strategy) {
+  constructor(private authService: AuthService) {
+    super({
+      usernameField: 'email',
+      passwordField: 'password',
+    });
+  }
 
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(6)
-  password!: string;
+  async validate(email: string, password: string) {
+    const usuario = await this.authService.validateUsuario(
+      email,
+      password,
+    );
+
+    if (!usuario) {
+      throw new UnauthorizedException(
+        'Credenciales inválidas',
+      );
+    }
+
+    return usuario;
+  }
 }

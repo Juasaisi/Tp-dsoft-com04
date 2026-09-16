@@ -16,7 +16,7 @@ export class Usuario {
   @Column({type:String, nullable:false, unique: true, length:50})
   email!:string;
 
-  @Column({type:String, nullable:false, length:30})
+  @Column({type:String, nullable:false, length:255})
   passwordHash!:string; 
   // explicacion
 

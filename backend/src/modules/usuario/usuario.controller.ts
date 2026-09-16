@@ -1,19 +1,21 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Put,
+} from '@nestjs/common';
+
 import { UsuarioService } from './usuario.service';
 import { UsuarioDto } from './dto/usuario.dto';
 
 @Controller('usuario')
 export class UsuarioController {
-
-    constructor(private usuarioService: UsuarioService){}
-    @Post()
-    createusuario(@Body() Usuario:UsuarioDto){
-        return this.usuarioService.createUsuario(Usuario);
-    }
-    @Get('/:idUsuario')
-    getUsuarioById(@Param('idUsuario') idUsuario: number) {
-    return this.usuarioService.findUsuario(idUsuario);
-  }
+  constructor(
+    private usuarioService: UsuarioService,
+  ) {}
 
   @Get()
   getUsuarios() {
@@ -25,20 +27,31 @@ export class UsuarioController {
     return this.usuarioService.findAllDeleted();
   }
 
+  @Get('/:idUsuario')
+  getUsuarioById(
+    @Param('idUsuario') idUsuario: number,
+  ) {
+    return this.usuarioService.findUsuario(idUsuario);
+  }
+
   @Put()
-  updateUsuario(@Body() usuario: UsuarioDto) {
+  updateUsuario(
+    @Body() usuario: UsuarioDto,
+  ) {
     return this.usuarioService.updateUsuario(usuario);
   }
 
   @Delete('/:idUsuario')
-  deletedUsuario(@Param('idUsuario') idUsuario: number) {
+  deletedUsuario(
+    @Param('idUsuario') idUsuario: number,
+  ) {
     return this.usuarioService.deletedUsuario(idUsuario);
   }
 
-  @Patch('/restore/idusuario')
-  restoreUsuario(@Param('idUsuario') idUsuario: number) {
+  @Patch('/restore/:idUsuario')
+  restoreUsuario(
+    @Param('idUsuario') idUsuario: number,
+  ) {
     return this.usuarioService.restoreUsuario(idUsuario);
   }
-
-
 }
