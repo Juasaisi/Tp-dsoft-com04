@@ -8,11 +8,9 @@ export class UsuarioDto {
     @IsNumber()
     idUsuario!: number;
 
-
     @IsString()
     @IsNotEmpty()
     nombre!: string;
-
 
     @IsEmail()
     @IsNotEmpty()

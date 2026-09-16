@@ -1,37 +1,33 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuario } from './entity/usuario.entity';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { UsuarioDto } from './dto/usuario.dto';
 
 @Injectable()
 export class UsuarioService {
 
     constructor(@InjectRepository(Usuario) private usuarioRepository: Repository<Usuario>){}
-    async createUsuario (usuarioDto: Usuario){
-        const usuarioExist = await this.findUsuario(usuarioDto.idUsuario);
+    async createUsuario (usuario: UsuarioDto){
+        const usuarioExist = await this.findUsuario(usuario.idUsuario);
         if (usuarioExist){
-            throw new ConflictException('El usuario con el id ' + usuarioDto.idUsuario + 'existe');
+            throw new ConflictException('El usuario con el id ' + usuario.idUsuario + 'existe');
         } else {
-            return await this.usuarioRepository.save(usuarioDto);
+            return await this.usuarioRepository.save(usuario);
         }
 
     }
     async findUsuario(idUsuario: number){
-        const usuario = await this.usuarioRepository.findOne({where: idUsuario }); 
+        return this.usuarioRepository.findOne({where: {idUsuario }}); 
     }
       async findAll() {
-
-    return await this.usuarioRepository.find({
-      where: { eliminado: false }
-    });
+    return await this.usuarioRepository.find({ where: { eliminado: false }});
 
   }
 
   async findAllDeleted() {
 
-    return await this.usuarioRepository.find({
-      where: { eliminado: true }
+    return await this.usuarioRepository.find({ where: { eliminado: true }
     });
 
   }

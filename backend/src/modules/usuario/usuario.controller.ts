@@ -8,10 +8,10 @@ export class UsuarioController {
     constructor(private usuarioService: UsuarioService){}
     @Post()
     createusuario(@Body() Usuario:UsuarioDto){
-        return this.usuarioService.createusuario(Usuario);
+        return this.usuarioService.createUsuario(Usuario);
     }
-     @Get('/:idUsuario')
-  getUsuarioById(@Param('idUsuario') idUsuario: number) {
+    @Get('/:idUsuario')
+    getUsuarioById(@Param('idUsuario') idUsuario: number) {
     return this.usuarioService.findUsuario(idUsuario);
   }
 
@@ -37,7 +37,7 @@ export class UsuarioController {
 
   @Patch('/restore/idusuario')
   restoreUsuario(@Param('idUsuario') idUsuario: number) {
-    return this.usuarioService.createUsuario(idUsuario);
+    return this.usuarioService.restoreUsuario(idUsuario);
   }
 
 
