@@ -7,12 +7,14 @@ import { UsuarioModule } from '../modules/usuario/usuario.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { LocalStrategy } from './strategies/locaL.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
+import { PagoModule } from '../modules/pago/pago.module';
 
 @Module({
   imports: [
     UsuarioModule,
     PassportModule,
+    PagoModule, 
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({

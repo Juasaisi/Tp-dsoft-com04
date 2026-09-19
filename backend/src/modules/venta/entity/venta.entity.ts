@@ -1,10 +1,17 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Cliente } from "../../cliente/entity/cliente.entity";
 
 @Entity("ventas")
 export class Venta {
 
     @PrimaryGeneratedColumn()
     idventa!: number;
+
+    @ManyToOne(() => Cliente, (cliente) => cliente.ventas, {
+    nullable: false,
+    })
+    @JoinColumn({ name: 'idCliente' })
+    cliente!: Cliente;
 
     @Column({type:Number, nullable:false})
     idcliente!: number;
