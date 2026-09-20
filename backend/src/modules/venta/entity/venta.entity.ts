@@ -13,10 +13,8 @@ export class Venta {
     @JoinColumn({ name: 'idCliente' })
     cliente!: Cliente;
 
-    @Column({type:Number, nullable:false})
-    idcliente!: number;
 
-    @Column({type:String, nullable:false, length:10})
+    @Column({type: 'date', nullable:false })
     fecha!: string;
 
     @Column({type:Number, nullable:false})

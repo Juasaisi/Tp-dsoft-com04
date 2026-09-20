@@ -10,17 +10,14 @@ export class ClienteService {
 
   constructor(@InjectRepository(Cliente) private clienteRepository: Repository<Cliente>) {}
 
-  async createCliente(cliente: ClienteDto) {
+  async createCliente(clienteDto: ClienteDto) {
+  const nuevoCliente =
+    this.clienteRepository.create(clienteDto);
 
-    const clienteExists = await this.findCliente(cliente.idCliente);
-
-    if (clienteExists) {
-      throw new ConflictException('El cliente con el ID: ' + cliente.idCliente + ' existe');
-    } else {
-      return await this.clienteRepository.save(cliente);
-    }
-
-  }
+  return await this.clienteRepository.save(
+    nuevoCliente,
+  );
+}
 
   async findCliente(idCliente: number) {
     return await this.clienteRepository.findOne({ where: { idCliente } });

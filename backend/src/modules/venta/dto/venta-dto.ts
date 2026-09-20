@@ -1,18 +1,18 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
+import { IsBoolean, IsDateString, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
 
 export class VentaDto {
 
     @IsNumber()
     @IsPositive()
-    @IsNotEmpty()
-    idventa!: number;
+    @IsOptional()
+    idventa?: number;
 
     @IsNumber()
     @IsPositive()
     @IsNotEmpty()
-    idcliente!: number;
+    idCliente!: number;
 
-    @IsString()
+    @IsDateString()
     @IsNotEmpty()
     fecha!: string;
 

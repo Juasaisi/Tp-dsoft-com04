@@ -12,7 +12,7 @@ idPago!:number;
 @Column({type:Date, nullable:false})
 fecha!:Date;
 
-@Column({type:Number, nullable:false, length:10})
+@Column({type:Number, nullable:false })
 importe!:number;
 
 @Column({type:String, nullable:false, length:50})
