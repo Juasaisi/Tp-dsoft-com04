@@ -10,7 +10,7 @@ import { CategoriaModule } from './modules/categoria/categoria.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import { AuthModule } from './auth/auth.module';
 import { PagoModule } from './modules/pago/pago.module';
-
+import { SaleDetailsModule } from './modules/sale_details/sale_details.module';
 
 @Module({
   imports: [ConfigModule.forRoot({isGlobal : true}),
@@ -23,6 +23,7 @@ import { PagoModule } from './modules/pago/pago.module';
   UsuarioModule,
   PagoModule,
   AuthModule, 
+  SaleDetailsModule,
 ],
   controllers: [],
   providers: [],

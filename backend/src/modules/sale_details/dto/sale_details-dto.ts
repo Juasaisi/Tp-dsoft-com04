@@ -5,21 +5,21 @@ export class Sale_detailsDto {
 
     @IsNumber()
     @IsPositive()
-    @IsNotEmpty()
-    idsale_d!:number;
+    @IsOptional()
+    idsale_d?:number;
+
+    @IsNumber()
+    @IsPositive()
+    idVenta!: number;
+
+    @IsNumber()
+    @IsPositive()
+    idProducto!: number;
 
     @IsNumber()
     @IsPositive()
     @IsNotEmpty()
     cantidad!:number;
 
-    @IsNumber()
-    @IsPositive()
-    @IsNotEmpty()
-    preciounitario!:number;
-
-    @IsNumber()
-    @IsPositive()
-    @IsNotEmpty()
-    subtotal!:number;
+    //precio unitario y subtotal los calcula el sistema
 }

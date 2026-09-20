@@ -24,8 +24,8 @@ export class Cliente{
     email!: string;
 
 
-    @Column({type: String, nullable: false, default: false})
-    delete?: boolean;
+    @Column({type: 'boolean', nullable: false, default: false})
+    delete!: boolean;
 
     @OneToMany(() => Venta, (venta) => venta.cliente)
   ventas!: Venta[];

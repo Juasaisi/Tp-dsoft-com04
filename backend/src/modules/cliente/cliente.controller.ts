@@ -46,10 +46,13 @@ export class ClienteController {
 
 }
 
-@Patch('/restore/idclient')
-restoreClient(@Param('idClient') idCliente : number){
-
-    return this.clienteService.restoreCliente(idCliente);
+@Patch('/restore/:idCliente')
+restoreCliente(
+  @Param('idCliente') idCliente: number,
+) {
+  return this.clienteService.restoreCliente(
+    idCliente,
+  );
 }
  
 

@@ -16,18 +16,20 @@ export class ProductosService {
 
     }
 
-     async createProducto(producto: ProductosDto) {
+     async createProducto(productoDto: ProductosDto) {
+      const nuevoProducto =
+      this.productosRepository.create({
+      nombre: productoDto.nombre,
+      descripcion: productoDto.descripcion,
+      stock: productoDto.stock,
+      precio: productoDto.precio,
+      eliminado: false,
+    });
 
-      const productoExists = await this.findProducto(producto.id)
-      if (productoExists) {
-        throw new ConflictException('Producto Existente');
-
-      } else {
-        return this.productosRepository.save(producto);
-
-      }
-      
-    }
+  return await this.productosRepository.save(
+    nuevoProducto,
+  );
+}
     
  async findProducto(id: number){
  return this.productosRepository.findOne({where:{id}})
