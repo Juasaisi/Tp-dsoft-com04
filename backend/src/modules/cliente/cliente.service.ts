@@ -10,9 +10,44 @@ export class ClienteService {
 
   constructor(@InjectRepository(Cliente) private clienteRepository: Repository<Cliente>) {}
 
-  async createCliente(clienteDto: ClienteDto) {
+  async createCliente(
+  clienteDto: ClienteDto,
+): Promise<Cliente> {
+  const clienteConMismoDni =
+    await this.clienteRepository.findOne({
+      where: {
+        dni: clienteDto.dni,
+      },
+    });
+
+  if (clienteConMismoDni) {
+    throw new ConflictException(
+      `Ya existe un cliente con el DNI ${clienteDto.dni}`,
+    );
+  }
+
+  const clienteConMismoEmail =
+    await this.clienteRepository.findOne({
+      where: {
+        email: clienteDto.email,
+      },
+    });
+
+  if (clienteConMismoEmail) {
+    throw new ConflictException(
+      `Ya existe un cliente con el email ${clienteDto.email}`,
+    );
+  }
+
   const nuevoCliente =
-    this.clienteRepository.create(clienteDto);
+    this.clienteRepository.create({
+      dni: clienteDto.dni,
+      name: clienteDto.name,
+      surname: clienteDto.surname,
+      phone: clienteDto.phone,
+      email: clienteDto.email,
+      delete: false,
+    });
 
   return await this.clienteRepository.save(
     nuevoCliente,

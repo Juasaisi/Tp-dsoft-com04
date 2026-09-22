@@ -1,49 +1,64 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Patch } from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Put } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ProductosService } from './productos.service';
+
 import { ProductosDto } from './dto/productos-dtos';
-import { idText } from 'typescript';
-import{ getRandomValues } from 'crypto'; 
+import { ProductosService } from './productos.service';
 
 @Controller('api/v1/productos')
 @ApiTags('Productos')
 export class ProductosController {
-  constructor(private ProductosService:ProductosService) {
-}
+  constructor(
+    private productosService: ProductosService,
+  ) {}
 
-  @Post('create')
-createProducto(@Body() producto: ProductosDto) {
-    return this.ProductosService.createProducto(producto)
-}
+  @Post()
+  createProducto(
+    @Body() productoDto: ProductosDto,
+  ) {
+    return this.productosService.createProducto(
+      productoDto,
+    );
+  }
 
-@Get('/:id')
-getProductoById(@Param('id')id: number){
-    return this.ProductosService.findProducto(id);
+  @Get()
+  getProductos() {
+    return this.productosService.findAll();
+  }
 
-}
-@Get()
-getproductos(){
-    return this.ProductosService.findAll();
-}
+  @Get('filter/eliminados')
+  getProductosEliminados() {
+    return this.productosService.findAllEliminados();
+  }
 
-@Get('filter/eliminado')
-getProductosEliminado(){
+  @Get(':id')
+  getProductoById(
+    @Param('id', ParseIntPipe) id: number, //La URL siempre llega como texto
+  ) {
+    return this.productosService.findProducto(id);
+  }
 
-    return this.ProductosService.findAllEliminados();
-}
+  @Put(':id')
+  updateProducto(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() productoDto: ProductosDto,
+  ) {
+    return this.productosService.updateProducto(
+      id,
+      productoDto,
+    );
+  }
 
-@Put()
-updateProducto(@Body() producto: ProductosDto ){
+  @Delete(':id')
+  eliminarProducto(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.productosService.softEliminado(id);
+  }
 
-    return this.ProductosService.updateProducto(producto)
-}
-@Delete('/:id')
-eliminarproducto(@Param('id') id : number){
-    return this.ProductosService.softEliminado(id);
-}
-@Patch('restore/:id')
-restoreProducto (@Param ('id') id:number){
-    return this.ProductosService.restoreProducto(id)
-}
-
+  @Patch('restore/:id')
+  restoreProducto(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.productosService.restoreProducto(id);
+  }
 }

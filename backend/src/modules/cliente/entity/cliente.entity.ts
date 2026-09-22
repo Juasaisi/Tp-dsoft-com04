@@ -11,21 +11,22 @@ export class Cliente{
     @Column({type: String, nullable: false, length: 8})
     dni!: string;
 
-    @Column({type: String, nullable: false, length: 10})
+    @Column({ type: String, nullable: false, length: 50,})
     name!: string;
     
-    @Column({type: String, nullable: false, length: 10})
+    @Column({type: String, nullable: false, length: 50})
     surname!: string;
 
     @Column({type: String, nullable: false, length: 10})
     phone!: string;
 
-    @Column({type: String, nullable: false, length: 30})
+    @Column({type: String, nullable: false, length: 100})
     email!: string;
 
-
-    @Column({type: 'boolean', nullable: false, default: false})
+    @Column({ type: 'boolean', nullable: false, default: false,})
     delete!: boolean;
+
+
 
     @OneToMany(() => Venta, (venta) => venta.cliente)
   ventas!: Venta[];

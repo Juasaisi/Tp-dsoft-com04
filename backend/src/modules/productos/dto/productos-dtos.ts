@@ -1,9 +1,9 @@
-import { IsNotEmpty, IsBoolean, IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
+import { IsNotEmpty, IsBoolean, IsNumber, IsOptional, IsPositive, IsString, Min } from "class-validator";
 
 export class ProductosDto {
 
 
-    @IsOptional()
+   
     @IsNumber()
     @IsPositive()
     id!:number;
@@ -18,7 +18,7 @@ export class ProductosDto {
 
     @IsNotEmpty()
     @IsNumber()
-    @IsPositive()
+    @Min(0)
     stock!:number;
 
     @IsNotEmpty()

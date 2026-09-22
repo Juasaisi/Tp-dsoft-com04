@@ -1,24 +1,25 @@
-import {Body, ConflictException, Injectable, Post } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Productos } from './entity/producto.entity';
-import { ProductosDto } from './dto/productos-dtos';
-import { UpdateResult } from 'typeorm/browser';
 
+import { ProductosDto } from './dto/productos-dtos';
+import { Productos } from './entity/producto.entity';
 
 @Injectable()
 export class ProductosService {
-    restoreProducto(id: number) {
-        throw new Error('Method not implemented.');
-    } 
+  constructor(
+    @InjectRepository(Productos)
+    private productosRepository: Repository<Productos>,
+  ) {}
 
-    constructor(@InjectRepository(Productos) private productosRepository: Repository<Productos> ) {
-
-    }
-
-     async createProducto(productoDto: ProductosDto) {
-      const nuevoProducto =
-      this.productosRepository.create({
+  async createProducto(
+    productoDto: ProductosDto,
+  ): Promise<Productos> {
+    const nuevoProducto = this.productosRepository.create({
       nombre: productoDto.nombre,
       descripcion: productoDto.descripcion,
       stock: productoDto.stock,
@@ -26,44 +27,96 @@ export class ProductosService {
       eliminado: false,
     });
 
-  return await this.productosRepository.save(
-    nuevoProducto,
-  );
-}
-    
- async findProducto(id: number){
- return this.productosRepository.findOne({where:{id}})
+    return await this.productosRepository.save(
+      nuevoProducto,
+    );
+  }
 
-}
- async findAll(){
+  async findProducto(id: number): Promise<Productos> {
+    const producto = await this.productosRepository.findOne({
+      where: { id },
+    });
 
-   return await this.productosRepository.find({where: {eliminado: false}});
-}
-
-
- async findAllEliminados(){
-
-   return await this.productosRepository.find({where: {eliminado: true}});
- }
-
- async updateProducto (producto : ProductosDto) {
-   return await this.productosRepository.save(producto);
- }
-
- async softEliminado(id: number){
-    const productoExists = await this.findProducto(id);
-
-    if (!productoExists){
-     throw new ConflictException ('el producto con id' + id + 'no existe');
-
+    if (!producto) {
+      throw new NotFoundException(
+        `El producto con ID ${id} no existe`,
+      );
     }
-    if (productoExists.eliminado){
 
-       throw new ConflictException ('el producto ya esta eliminado')
+    return producto;
+  }
+
+  async findAll(): Promise<Productos[]> {
+    return await this.productosRepository.find({
+      where: { eliminado: false },
+    });
+  }
+
+  async findAllEliminados(): Promise<Productos[]> {
+    return await this.productosRepository.find({
+      where: { eliminado: true },
+    });
+  }
+
+  async updateProducto(
+    id: number,
+    productoDto: ProductosDto,
+  ): Promise<Productos> {
+    const productoExistente =
+      await this.findProducto(id);
+
+    productoExistente.nombre =
+      productoDto.nombre;
+
+    productoExistente.descripcion =
+      productoDto.descripcion;
+
+    productoExistente.stock =
+      productoDto.stock;
+
+    productoExistente.precio =
+      productoDto.precio;
+
+    return await this.productosRepository.save(
+      productoExistente,
+    );
+  }
+
+  async softEliminado(id: number): Promise<boolean> {
+    const productoExistente =
+      await this.findProducto(id);
+
+    if (productoExistente.eliminado) {
+      throw new ConflictException(
+        `El producto con ID ${id} ya está eliminado`,
+      );
     }
-  
-    const rows : UpdateResult = await this.productosRepository.update({id}, {eliminado : true});
 
-    return rows.affected == 1;
- }
+    const resultado =
+      await this.productosRepository.update(
+        { id },
+        { eliminado: true },
+      );
+
+    return resultado.affected === 1;
+  }
+
+  async restoreProducto(id: number): Promise<boolean> {
+    const productoExistente =
+      await this.findProducto(id);
+
+    if (!productoExistente.eliminado) {
+      throw new ConflictException(
+        `El producto con ID ${id} no está eliminado`,
+      );
+    }
+
+    const resultado =
+      await this.productosRepository.update(
+        { id },
+        { eliminado: false },
+      );
+
+    return resultado.affected === 1;
+  }
 }
