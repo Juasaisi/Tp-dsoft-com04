@@ -1,8 +1,30 @@
-<section>
-  <h1>Sistema de Gestión de Ventas</h1>
+<div class="inicio">
+  <header class="barra">
+    <a class="marca" routerLink="/">Gestión de Ventas</a>
+    <span class="barra__descripcion">Emprendimiento de accesorios</span>
+  </header>
 
-  <p>
-    Administración de clientes, productos y ventas
-    de accesorios.
-  </p>
-</section>
+  <main class="contenido">
+    <section class="bienvenida">
+      <span class="etiqueta">PANEL PRINCIPAL</span>
+      <h1>Bienvenida al sistema</h1>
+      <p>
+        Desde acá podés organizar los clientes y, próximamente,
+        los productos y las ventas del emprendimiento.
+      </p>
+    </section>
+
+    <section aria-labelledby="secciones">
+      <h2 id="secciones">Secciones</h2>
+
+      <div class="tarjetas">
+        <a class="tarjeta" routerLink="/clientes">
+          <span class="tarjeta__icono" aria-hidden="true">👥</span>
+          <h3>Clientes</h3>
+          <p>Consultá y administrá los datos de tus clientes.</p>
+          <span class="tarjeta__accion">Ir a Clientes →</span>
+        </a>
+      </div>
+    </section>
+  </main>
+</div>

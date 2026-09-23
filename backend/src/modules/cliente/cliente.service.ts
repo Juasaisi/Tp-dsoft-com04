@@ -69,10 +69,16 @@ export class ClienteService {
   
   }
 
-  async updateCliente(cliente: ClienteDto){
+  async updateCliente(idCliente: number, datos: ClienteDto) {
+    const cliente = await this.findCliente(idCliente);
 
-    return await this.clienteRepository.save(cliente);
-  }
+    if (!cliente || cliente.delete) {
+      throw new ConflictException('El cliente no existe o está dado de baja');
+    }
+
+    Object.assign(cliente, datos);
+    return this.clienteRepository.save(cliente);
+  } 
   async deletedCliente(idCliente : number) {
 
   const clienteExist = await this.findCliente(idCliente);

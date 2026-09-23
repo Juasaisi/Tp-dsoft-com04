@@ -32,12 +32,13 @@ export class ClienteController {
      
   }
 
-  @Put()
-  updateCliente(@Body() cliente: ClienteDto){
-
-    return this.clienteService.updateCliente(cliente);
-
-  }
+  @Put(':idCliente')
+  updateCliente(
+    @Param('idCliente') idCliente: number,
+    @Body() cliente: ClienteDto,
+  ) {
+    return this.clienteService.updateCliente(idCliente, cliente);
+}
 
   @Delete('/:idCliente')
  deletedCliente(@Param('idCliente') idCliente: number) {

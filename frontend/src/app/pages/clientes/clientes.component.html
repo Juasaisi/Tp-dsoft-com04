@@ -1,1 +1,54 @@
-<p>clientes works!</p>
+<div class="pagina">
+  <header class="barra">
+    <a class="marca" routerLink="/">Gestión de Ventas</a>
+    <a class="volver" routerLink="/">← Volver al inicio</a>
+  </header>
+
+  <main class="contenido">
+    <div class="encabezado">
+      <div>
+        <span class="etiqueta">ADMINISTRACIÓN</span>
+        <h1>Clientes</h1>
+        <p>Consultá los clientes activos del emprendimiento.</p>
+      </div>
+    </div>
+
+    <section class="panel" aria-label="Listado de clientes">
+      @if (cargando) {
+        <p class="estado">Cargando clientes...</p>
+      } @else if (error) {
+        <div class="estado">
+          <p>{{ error }}</p>
+          <button type="button" (click)="cargarClientes()">Reintentar</button>
+        </div>
+      } @else if (clientes.length === 0) {
+        <p class="estado">Todavía no hay clientes activos.</p>
+      } @else {
+        <div class="tabla-contenedor">
+          <table>
+            <thead>
+              <tr>
+                <th>DNI</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (cliente of clientes; track cliente.idCliente) {
+                <tr>
+                  <td>{{ cliente.dni }}</td>
+                  <td>{{ cliente.name }}</td>
+                  <td>{{ cliente.surname }}</td>
+                  <td>{{ cliente.phone }}</td>
+                  <td class="acciones">Próximamente</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </main>
+</div>

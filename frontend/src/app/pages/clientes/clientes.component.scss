@@ -1,0 +1,120 @@
+:host {
+  display: block;
+  font-family: Arial, sans-serif;
+  color: #292623;
+}
+
+.pagina {
+  min-height: 100vh;
+  background: #f7f5f2;
+}
+
+.barra {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem max(2rem, calc((100vw - 1100px) / 2));
+  background: #fff;
+  border-bottom: 1px solid #e8e2da;
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.marca {
+  color: #292623;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.volver {
+  color: #9b704f;
+  font-size: 0.9rem;
+}
+
+.contenido {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3.5rem 2rem;
+}
+
+.encabezado {
+  margin-bottom: 2rem;
+
+  .etiqueta {
+    color: #9b704f;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+  }
+
+  h1 {
+    margin: 0.8rem 0;
+    font-size: clamp(2rem, 5vw, 3rem);
+  }
+
+  p {
+    color: #6e6862;
+  }
+}
+
+.panel {
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e8e2da;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgb(41 38 35 / 5%);
+}
+
+.tabla-contenedor {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th, td {
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid #eeeae5;
+}
+
+th {
+  color: #77716b;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+.acciones {
+  color: #9b704f;
+}
+
+.estado {
+  padding: 2rem;
+  color: #6e6862;
+}
+
+button {
+  padding: 0.7rem 1rem;
+  border: 0;
+  border-radius: 8px;
+  background: #9b704f;
+  color: #fff;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .barra,
+  .contenido {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
