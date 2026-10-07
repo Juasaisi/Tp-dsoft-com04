@@ -23,7 +23,7 @@ export interface Cliente {
 })
 export class ClientesComponent implements OnInit {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/cliente';
+  private apiUrl = 'http://localhost:3000/api/v1/Cliente';
 
   clientes: Cliente[] = [];
   clienteSeleccionado: Cliente | null = null;

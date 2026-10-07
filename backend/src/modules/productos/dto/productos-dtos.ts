@@ -4,9 +4,7 @@ export class ProductosDto {
 
 
    
-    @IsNumber()
-    @IsPositive()
-    id!:number;
+
 
     @IsString()
     @IsNotEmpty()
