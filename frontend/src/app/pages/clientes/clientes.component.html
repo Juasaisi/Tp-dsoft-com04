@@ -1,97 +1,156 @@
-<div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Clientes</h2>
-    <button class="btn btn-primary" (click)="abrirCrear()">+ Nuevo Cliente</button>
+<div class="clientes-page">
+  <!-- Cabecera -->
+  <header class="page-header">
+    <div class="header-info">
+      <div class="tag-badge">Comunidad & Clientes</div>
+      <h1>Directorio de Clientes</h1>
+      <p class="subtitle">Gestioná los contactos y compradores de tus accesorios</p>
+    </div>
+    <button type="button" class="btn-nuevo" (click)="abrirCrear()">
+      <span class="icon">+</span>
+      <span>Nuevo cliente</span>
+    </button>
+  </header>
+
+  <!-- Banners de notificación -->
+  <div *ngIf="exitoMsg" class="banner banner-exito">
+    <span>{{ exitoMsg }}</span>
+    <button type="button" class="btn-cerrar-banner" (click)="exitoMsg = ''">✕</button>
   </div>
 
-  <!-- Mensajes -->
-  <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
-  <div *ngIf="exitoMsg" class="alert alert-success">{{ exitoMsg }}</div>
+  <div *ngIf="errorMsg" class="banner banner-error">
+    <span>{{ errorMsg }}</span>
+    <button type="button" class="btn-cerrar-banner" (click)="errorMsg = ''">✕</button>
+  </div>
 
   <!-- Spinner de carga -->
-  <div *ngIf="cargando" class="text-center py-4">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p class="mt-2 text-muted">Cargando clientes desde el backend...</p>
+  <div *ngIf="cargando" class="loading-state">
+    <div class="loader-pulse"></div>
+    <p>Cargando lista de clientes...</p>
   </div>
 
   <!-- Formulario de Alta / Edición -->
-  <div *ngIf="mostrarFormulario" class="card p-3 mb-4 shadow-sm bg-light">
-    <h4 class="mb-3">{{ modoEdicion ? 'Editar Cliente' : 'Nuevo Cliente' }}</h4>
-    <form (ngSubmit)="guardarCliente()">
-      <div class="row g-2 mb-2">
-        <div class="col-12 col-md-4">
-          <label class="form-label">DNI *</label>
-          <input type="text" class="form-control" [(ngModel)]="clienteForm.dni" name="dni" required />
-        </div>
-        <div class="col-12 col-md-4">
-          <label class="form-label">Nombre *</label>
-          <input type="text" class="form-control" [(ngModel)]="clienteForm.name" name="name" required />
-        </div>
-        <div class="col-12 col-md-4">
-          <label class="form-label">Apellido *</label>
-          <input type="text" class="form-control" [(ngModel)]="clienteForm.surname" name="surname" required />
-        </div>
+  <section *ngIf="mostrarFormulario" class="card-formulario">
+    <div class="form-header">
+      <div>
+        <h3>{{ modoEdicion ? 'Editar datos del cliente' : 'Registrar nuevo cliente' }}</h3>
+        <p class="form-sub">{{ modoEdicion ? 'Actualizá la información personal y de contacto' : 'Completá los datos básicos para sumarlo a la base' }}</p>
       </div>
-      <div class="row g-2 mb-3">
-        <div class="col-12 col-md-6">
-          <label class="form-label">Teléfono</label>
-          <input type="text" class="form-control" [(ngModel)]="clienteForm.phone" name="phone" />
-        </div>
-        <div class="col-12 col-md-6">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-control" [(ngModel)]="clienteForm.email" name="email" />
-        </div>
+      <button type="button" class="btn-icon-cerrar" (click)="cerrarFormulario()">✕</button>
+    </div>
+
+    <form (ngSubmit)="guardarCliente()" class="form-grid">
+      <div class="campo campo-completo">
+        <label>DNI <span>*</span></label>
+        <input type="text" [(ngModel)]="clienteForm.dni" name="dni" placeholder="Ej: 40123456" required />
       </div>
-      <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-success">Guardar</button>
-        <button type="button" class="btn btn-secondary" (click)="cerrarFormulario()">Cancelar</button>
+
+      <div class="campo">
+        <label>Nombre <span>*</span></label>
+        <input type="text" [(ngModel)]="clienteForm.name" name="name" placeholder="Ej: Valentina" required />
+      </div>
+
+      <div class="campo">
+        <label>Apellido <span>*</span></label>
+        <input type="text" [(ngModel)]="clienteForm.surname" name="surname" placeholder="Ej: Rossi" required />
+      </div>
+
+      <div class="campo">
+        <label>Teléfono / WhatsApp</label>
+        <input type="tel" [(ngModel)]="clienteForm.phone" name="phone" placeholder="Ej: 341 555-1234" />
+      </div>
+
+      <div class="campo">
+        <label>Correo Electrónico</label>
+        <input type="email" [(ngModel)]="clienteForm.email" name="email" placeholder="cliente@correo.com" />
+      </div>
+
+      <div class="form-actions campo-completo">
+        <button type="button" class="btn-cancelar" (click)="cerrarFormulario()">Cancelar</button>
+        <button type="submit" class="btn-guardar">{{ modoEdicion ? 'Guardar cambios' : 'Dar de alta' }}</button>
       </div>
     </form>
-  </div>
+  </section>
 
-  <!-- Detalle del Cliente Seleccionado -->
-  <div *ngIf="clienteSeleccionado" class="card p-3 mb-4 border-info shadow-sm">
-    <div class="d-flex justify-content-between align-items-center">
-      <h4 class="text-info mb-0">Detalle de: {{ clienteSeleccionado.name }} {{ clienteSeleccionado.surname }}</h4>
-      <button class="btn btn-sm btn-outline-secondary" (click)="cerrarDetalle()">Cerrar Detalle</button>
+  <!-- Ficha de Detalle -->
+  <section *ngIf="clienteSeleccionado" class="card-detalle">
+    <div class="detalle-header">
+      <div class="detalle-avatar">
+        {{ (clienteSeleccionado.name ? clienteSeleccionado.name.charAt(0) : '') + (clienteSeleccionado.surname ? clienteSeleccionado.surname.charAt(0) : '') || 'C' }}
+      </div>
+      <div class="detalle-titles">
+        <h3>{{ clienteSeleccionado.name }} {{ clienteSeleccionado.surname }}</h3>
+        <span class="detalle-id">ID de Cliente: #{{ clienteSeleccionado.idCliente }}</span>
+      </div>
+      <button type="button" class="btn-icon-cerrar" (click)="cerrarDetalle()">✕</button>
     </div>
-    <hr />
-    <p class="mb-1"><strong>ID:</strong> {{ clienteSeleccionado.idCliente }}</p>
-    <p class="mb-1"><strong>DNI:</strong> {{ clienteSeleccionado.dni }}</p>
-    <p class="mb-1"><strong>Teléfono:</strong> {{ clienteSeleccionado.phone || 'No tiene' }}</p>
-    <p class="mb-0"><strong>Email:</strong> {{ clienteSeleccionado.email || 'No tiene' }}</p>
-  </div>
+
+    <div class="detalle-datos">
+      <div class="dato-item">
+        <span class="label">Documento</span>
+        <span class="valor">{{ clienteSeleccionado.dni }}</span>
+      </div>
+      <div class="dato-item">
+        <span class="label">Teléfono</span>
+        <span class="valor">{{ clienteSeleccionado.phone || 'No especificado' }}</span>
+      </div>
+      <div class="dato-item">
+        <span class="label">Email</span>
+        <span class="valor">{{ clienteSeleccionado.email || 'No especificado' }}</span>
+      </div>
+    </div>
+  </section>
 
   <!-- Tabla de Clientes -->
-  <div *ngIf="!cargando" class="table-responsive">
-    <table class="table table-striped table-hover align-middle">
-      <thead class="table-dark">
-        <tr>
-          <th>DNI</th>
-          <th>Nombre Completo</th>
-          <th class="d-none d-md-table-cell">Teléfono</th>
-          <th class="d-none d-lg-table-cell">Email</th>
-          <th class="text-end">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let c of clientes">
-          <td>{{ c.dni }}</td>
-          <td>{{ c.name }} {{ c.surname }}</td>
-          <td class="d-none d-md-table-cell">{{ c.phone }}</td>
-          <td class="d-none d-lg-table-cell">{{ c.email }}</td>
-          <td class="text-end">
-            <div class="btn-group btn-group-sm">
-              <button class="btn btn-info text-white" (click)="verDetalle(c)">Detalle</button>
-              <button class="btn btn-warning" (click)="abrirEditar(c)">Editar</button>
-              <button class="btn btn-danger" (click)="eliminarCliente(c)">Borrar</button>
-            </div>
-          </td>
-        </tr>
-        <tr *ngIf="clientes.length === 0">
-          <td colspan="5" class="text-center py-3 text-muted">No hay clientes cargados.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <section *ngIf="!cargando" class="card-tabla">
+    <div class="tabla-topbar">
+      <span class="contador-badge">{{ clientes.length }} {{ clientes.length === 1 ? 'cliente registrado' : 'clientes registrados' }}</span>
+    </div>
+
+    <div class="table-container">
+      <table class="tabla-boutique">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>DNI</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th class="th-acciones">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of clientes">
+            <td class="td-nombre">
+              <div class="cliente-cell">
+                <div class="avatar-chico">
+                  {{ (c.name ? c.name.charAt(0) : '') + (c.surname ? c.surname.charAt(0) : '') || '•' }}
+                </div>
+                <div>
+                  <div class="nombre-principal">{{ c.name }} {{ c.surname }}</div>
+                  <div class="sub-chico">Cliente activo</div>
+                </div>
+              </div>
+            </td>
+            <td class="td-dni">{{ c.dni }}</td>
+            <td>{{ c.phone || '—' }}</td>
+            <td class="td-email">{{ c.email || '—' }}</td>
+            <td class="td-acciones">
+              <div class="acciones-group">
+                <button type="button" class="btn-chip btn-detalle" (click)="verDetalle(c)">Detalle</button>
+                <button type="button" class="btn-chip btn-editar" (click)="abrirEditar(c)">Editar</button>
+                <button type="button" class="btn-chip btn-borrar" (click)="eliminarCliente(c)">Borrar</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="clientes.length === 0">
+            <td colspan="5" class="empty-state">
+              <p>Todavía no agregaste ningún cliente.</p>
+              <button type="button" class="btn-link" (click)="abrirCrear()">Hacé clic acá para crear el primero</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 </div>

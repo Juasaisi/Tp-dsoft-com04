@@ -1,24 +1,28 @@
+// frontend/src/app/app.component.spec.ts
 import { TestBed } from '@angular/core/testing';
-import { App } from './app.component';
+import { provideRouter } from '@angular/router';
+import { AppComponent } from './app.component';
 
-describe('App', () => {
+describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App],
-    })
-      .compileComponents();
+      imports: [AppComponent],
+      providers: [
+        provideRouter([]) // Necesario porque AppComponent usa RouterLink y RouterOutlet
+      ]
+    }).compileComponents();
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
+  it('debe crear la aplicación correctamente', () => {
+    const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
   });
 
-  it('should render title', async () => {
-    const fixture = TestBed.createComponent(App);
+  it('debe contener el nombre del sistema en la barra de navegación', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, frontend');
+    expect(compiled.querySelector('.brand-title')?.textContent).toContain('SigmaOS');
   });
 });

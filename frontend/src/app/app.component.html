@@ -1,4 +1,46 @@
+<!-- Barra de navegación global -->
+<header class="navbar-wrapper">
+  <nav class="navbar-content">
+    <!-- Logotipo e Identidad -->
+    <a routerLink="/inicio" class="brand-logo" (click)="cerrarMenu()">
+      <span class="brand-icon">✦</span>
+      <span class="brand-title">Sigma<strong>OS</strong></span>
+      <span class="brand-tag">Taller & Accesorios</span>
+    </a>
 
+    <!-- Botón Hamburguesa para Móviles -->
+    <button 
+      type="button" 
+      class="btn-hamburger" 
+      (click)="toggleMenu()"
+      [class.active]="menuAbierto"
+      aria-label="Abrir menú">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
 
-<router-outlet></router-outlet>
+    <!-- Enlaces -->
+    <div class="nav-links-container" [class.is-open]="menuAbierto">
+      <ul class="nav-links">
+        <li>
+          <a routerLink="/inicio" routerLinkActive="active-link" (click)="cerrarMenu()">Inicio</a>
+        </li>
+        <li>
+          <a routerLink="/clientes" routerLinkActive="active-link" (click)="cerrarMenu()">Clientes</a>
+        </li>
+        <li>
+          <a routerLink="/productos" routerLinkActive="active-link" (click)="cerrarMenu()">Productos</a>
+        </li>
+        <li>
+          <a routerLink="/ventas" routerLinkActive="active-link" (click)="cerrarMenu()">Ventas</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</header>
 
+<!-- Contenedor dinámico donde se ve Clientes, Productos, etc. -->
+<main class="app-main-view">
+  <router-outlet></router-outlet>
+</main>

@@ -1,0 +1,163 @@
+$fondo-nav: #ffffff;
+$tinta-principal: #2d2621;
+$tinta-secundaria: #7a6e65;
+$borde-suave: #ebe5dc;
+$acento-calido: #c87444;
+$fondo-activo: rgba($acento-calido, 0.08);
+
+.navbar-wrapper {
+  background-color: $fondo-nav;
+  border-bottom: 1px solid $borde-suave;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.navbar-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.9rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: $tinta-principal;
+
+  .brand-icon {
+    color: $acento-calido;
+    font-size: 1.1rem;
+  }
+
+  .brand-title {
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+    strong {
+      color: $acento-calido;
+      font-weight: 800;
+    }
+  }
+
+  .brand-tag {
+    display: none;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $tinta-secundaria;
+    background: #f4eee7;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    margin-left: 0.35rem;
+  }
+}
+
+/* SM: Celular (Mobile-First) */
+.btn-hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 28px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+
+  .bar {
+    width: 100%;
+    height: 2.5px;
+    background-color: $tinta-principal;
+    border-radius: 2px;
+    transition: all 0.25s ease;
+  }
+
+  &.active {
+    .bar:nth-child(1) { transform: translateY(8.5px) rotate(45deg); }
+    .bar:nth-child(2) { opacity: 0; }
+    .bar:nth-child(3) { transform: translateY(-8.5px) rotate(-45deg); }
+  }
+}
+
+.nav-links-container {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: $fondo-nav;
+  border-bottom: 1px solid $borde-suave;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  padding: 1rem 1.25rem;
+
+  &.is-open { display: block; }
+
+  .nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    li a {
+      display: block;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      text-decoration: none;
+      color: $tinta-secundaria;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+
+      &:hover, &.active-link {
+        color: $acento-calido;
+        background-color: $fondo-activo;
+      }
+    }
+  }
+}
+
+.app-main-view {
+  min-height: calc(100vh - 65px);
+  background-color: #faf7f2;
+}
+
+/* MD: Tablets (>= 768px) */
+@media (min-width: 768px) {
+  .btn-hamburger { display: none; }
+  .brand-logo .brand-tag { display: inline-block; }
+
+  .nav-links-container {
+    display: block;
+    position: static;
+    width: auto;
+    padding: 0;
+    border-bottom: none;
+    box-shadow: none;
+
+    .nav-links {
+      flex-direction: row;
+      gap: 0.35rem;
+
+      li a {
+        padding: 0.5rem 0.9rem;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+/* LG: Escritorios (>= 992px) */
+@media (min-width: 992px) {
+  .navbar-content { padding: 1rem 2rem; }
+  .nav-links li a { padding: 0.55rem 1.15rem; font-size: 0.95rem; }
+}
