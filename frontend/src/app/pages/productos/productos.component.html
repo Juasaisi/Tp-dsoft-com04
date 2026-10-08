@@ -102,13 +102,13 @@
     </form>
   </section>
 
-  <!-- Ficha de Detalle (Requisito de regularidad) -->
+<!-- Ficha de Detalle (Protegida contra undefined) -->
   <section *ngIf="productoSeleccionado" class="card-detalle">
     <div class="detalle-header">
       <div class="detalle-avatar">✦</div>
       <div class="detalle-titles">
-        <h3>{{ productoSeleccionado.name }}</h3>
-        <span class="detalle-id">Identificador: #{{ productoSeleccionado.idProducto }}</span>
+        <h3>{{ productoSeleccionado?.name || productoSeleccionado?.nombre }}</h3>
+        <span class="detalle-id">Identificador: #{{ productoSeleccionado?.idProducto }}</span>
       </div>
       <button type="button" class="btn-icon-cerrar" (click)="cerrarDetalle()">✕</button>
     </div>
@@ -116,20 +116,20 @@
     <div class="detalle-datos">
       <div class="dato-item">
         <span class="label">Precio Unitario</span>
-        <span class="valor valor-precio">${{ productoSeleccionado.price | number:'1.2-2' }}</span>
+        <span class="valor valor-precio">${{ (productoSeleccionado?.price ?? productoSeleccionado?.precio ?? 0) | number:'1.2-2' }}</span>
       </div>
 
       <div class="dato-item">
         <span class="label">Disponibilidad</span>
-        <span class="valor" [class.texto-alerta]="productoSeleccionado.stock <= 5">
-          {{ productoSeleccionado.stock }} unidades
-          <small *ngIf="productoSeleccionado.stock <= 5">(¡Bajo Stock!)</small>
+        <span class="valor" [class.texto-alerta]="(productoSeleccionado?.stock ?? 0) <= 5">
+          {{ productoSeleccionado?.stock ?? 0 }} unidades
+          <small *ngIf="(productoSeleccionado?.stock ?? 0) <= 5">(¡Bajo Stock!)</small>
         </span>
       </div>
 
       <div class="dato-item dato-ancho-completo">
         <span class="label">Detalles / Materiales</span>
-        <span class="valor">{{ productoSeleccionado.description || 'Sin descripción adicional registrada' }}</span>
+        <span class="valor">{{ productoSeleccionado?.description || productoSeleccionado?.descripcion || 'Sin descripción adicional registrada' }}</span>
       </div>
     </div>
   </section>
@@ -163,8 +163,8 @@
             </td>
             <td class="td-precio">${{ p.price | number:'1.2-2' }}</td>
             <td>
-              <span class="badge-stock" [class.badge-alerta]="p.stock <= 5" [class.badge-normal]="p.stock > 5">
-                {{ p.stock }} u.
+              <span class="badge-stock" [class.badge-alerta]="(p.stock ?? 0) <=5" [class.badge-normal]="(p.stock ?? 0) >5">
+                {{ p.stock ?? 0 }} u.
               </span>
             </td>
             <td class="td-acciones">

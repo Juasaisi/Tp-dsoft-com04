@@ -1,15 +1,20 @@
+// frontend/src/app/pages/productos/productos.component.ts
 import { Component, inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 
 export interface Producto {
   idProducto?: number;
-  name: string;
+  name?: string;
+  nombre?: string;
   description?: string;
-  price: number;
-  stock: number;
+  descripcion?: string;
+  price?: number;
+  precio?: number;
+  stock?: number;
   delete?: boolean;
 }
 
@@ -32,19 +37,12 @@ export class ProductosComponent implements OnInit {
   errorMsg: string = '';
   exitoMsg: string = '';
 
-  // Filtros (Requisito de regularidad)
   filtroTexto: string = '';
   filtroSoloBajoStock: boolean = false;
 
-  // Estado del formulario
   mostrarFormulario: boolean = false;
   modoEdicion: boolean = false;
-  productoForm: Producto = {
-    name: '',
-    description: '',
-    price: 0,
-    stock: 0
-  };
+  productoForm: any = { name: '', description: '', price: 0, stock: 0 };
 
   ngOnInit(): void {
     this.cargarProductos();
@@ -54,28 +52,34 @@ export class ProductosComponent implements OnInit {
     this.cargando = true;
     this.errorMsg = '';
 
-    this.http.get<Producto[]>(this.apiUrl).subscribe({
-      next: (data) => {
-        this.productos = Array.isArray(data) ? data.filter(p => !p.delete) : [];
-        this.aplicarFiltros();
-        this.cargando = false;
-      },
-      error: (err) => {
-        console.error('Error al cargar productos:', err);
-        this.errorMsg = `No se pudo conectar con el backend en ${this.apiUrl}. Verifique que NestJS esté activo.`;
-        this.cargando = false;
-      }
-    });
+    this.http.get<Producto[]>(this.apiUrl)
+      .pipe(
+        // finalize garantiza apagar el spinner ante éxito o error
+        finalize(() => { this.cargando = false; })
+      )
+      .subscribe({
+        next: (data) => {
+          this.productos = Array.isArray(data) ? data.filter(p => !p.delete) : [];
+          this.aplicarFiltros();
+        },
+        error: (err) => {
+          console.error('Error al cargar productos:', err);
+          this.errorMsg = `No se pudo conectar con el backend en ${this.apiUrl}`;
+        }
+      });
   }
 
   aplicarFiltros(): void {
-    const busqueda = this.filtroTexto.trim().toLowerCase();
+    const busqueda = (this.filtroTexto || '').trim().toLowerCase();
 
     this.productosFiltrados = this.productos.filter(p => {
-      const coincideTexto = p.name.toLowerCase().includes(busqueda) ||
-        (p.description && p.description.toLowerCase().includes(busqueda));
+      // Soporta tanto 'name' como 'nombre' sin riesgo de undefined
+      const nom = ((p.name ?? p.nombre) || '').toString().toLowerCase();
+      const desc = ((p.description ?? p.descripcion) || '').toString().toLowerCase();
 
-      const coincideStock = !this.filtroSoloBajoStock || p.stock <= 5;
+      const coincideTexto = nom.includes(busqueda) || desc.includes(busqueda);
+      const stockActual = p.stock ?? (p as any).stockActual ?? 0;
+      const coincideStock = !this.filtroSoloBajoStock || stockActual <= 5;
 
       return coincideTexto && coincideStock;
     });
@@ -90,67 +94,72 @@ export class ProductosComponent implements OnInit {
 
   abrirEditar(p: Producto): void {
     this.modoEdicion = true;
-    this.productoForm = { ...p };
+    this.productoForm = {
+      idProducto: p.idProducto,
+      name: p.name || p.nombre || '',
+      description: p.description || p.descripcion || '',
+      price: p.price ?? p.precio ?? 0,
+      stock: p.stock ?? 0
+    };
     this.mostrarFormulario = true;
     this.errorMsg = '';
   }
 
   guardarProducto(): void {
-    if (!this.productoForm.name.trim()) {
+    const nombreFinal = (this.productoForm.name || '').trim();
+    if (!nombreFinal) {
       alert('El nombre del producto es obligatorio.');
-      return;
-    }
-    if (this.productoForm.price < 0 || this.productoForm.stock < 0) {
-      alert('El precio y el stock deben ser números positivos.');
       return;
     }
 
     this.cargando = true;
     this.errorMsg = '';
 
+    const payload = {
+      name: nombreFinal,
+      nombre: nombreFinal,
+      description: this.productoForm.description,
+      descripcion: this.productoForm.description,
+      price: Number(this.productoForm.price),
+      precio: Number(this.productoForm.price),
+      stock: Number(this.productoForm.stock)
+    };
+
     if (this.modoEdicion && this.productoForm.idProducto) {
-      // Modificar existente (PUT)
-      this.http.put(`${this.apiUrl}/${this.productoForm.idProducto}`, this.productoForm).subscribe({
-        next: () => {
-          this.mostrarNotificacion('Producto actualizado con éxito');
-          this.cerrarFormulario();
-          this.cargarProductos();
-        },
-        error: (err) => {
-          console.error('Error al actualizar:', err);
-          this.errorMsg = 'Error al actualizar el producto en el servidor.';
-          this.cargando = false;
-        }
-      });
+      this.http.put(`${this.apiUrl}/${this.productoForm.idProducto}`, payload)
+        .pipe(finalize(() => { this.cargando = false; }))
+        .subscribe({
+          next: () => {
+            this.mostrarNotificacion('Producto actualizado con éxito');
+            this.cerrarFormulario();
+            this.cargarProductos();
+          },
+          error: () => { this.errorMsg = 'Error al actualizar el producto.'; }
+        });
     } else {
-      // Crear nuevo (POST)
-      this.http.post(this.apiUrl, this.productoForm).subscribe({
-        next: () => {
-          this.mostrarNotificacion('Producto creado con éxito');
-          this.cerrarFormulario();
-          this.cargarProductos();
-        },
-        error: (err) => {
-          console.error('Error al guardar:', err);
-          this.errorMsg = 'Error al guardar el producto en el servidor.';
-          this.cargando = false;
-        }
-      });
+      this.http.post(this.apiUrl, payload)
+        .pipe(finalize(() => { this.cargando = false; }))
+        .subscribe({
+          next: () => {
+            this.mostrarNotificacion('Producto creado con éxito');
+            this.cerrarFormulario();
+            this.cargarProductos();
+          },
+          error: () => { this.errorMsg = 'Error al guardar el producto.'; }
+        });
     }
   }
 
   eliminarProducto(p: Producto): void {
     if (!p.idProducto) return;
-    if (confirm(`¿Confirma eliminar el producto "${p.name}"?`)) {
+    const nom = p.name || p.nombre || 'este producto';
+    if (confirm(`¿Confirma eliminar "${nom}"?`)) {
       this.http.delete(`${this.apiUrl}/${p.idProducto}`).subscribe({
         next: () => {
           this.mostrarNotificacion('Producto eliminado.');
           this.cargarProductos();
         },
-        error: (err) => {
-          console.error('Error al eliminar:', err);
-          this.errorMsg = 'Error al eliminar el producto.';
-        }
+        error: () => { this.errorMsg = 'Error al eliminar el producto.'; }
       });
     }
   }
