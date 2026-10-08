@@ -1,44 +1,49 @@
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, inject, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
-// Definimos la estructura del producto acá mismo (igual que en Clientes)
 export interface Producto {
-  id?: number;
-  nombre: string;
-  descripcion: string;
+  idProducto?: number;
+  name: string;
+  description?: string;
+  price: number;
   stock: number;
-  precio: number;
-  eliminado?: boolean;
+  delete?: boolean;
 }
 
 @Component({
   selector: 'app-productos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './productos.component.html',
   styleUrl: './productos.component.scss'
 })
 export class ProductosComponent implements OnInit {
   private http = inject(HttpClient);
-  private cdr = inject(ChangeDetectorRef);
   private apiUrl = 'http://localhost:3000/api/v1/productos';
 
   productos: Producto[] = [];
+  productosFiltrados: Producto[] = [];
   productoSeleccionado: Producto | null = null;
+
   cargando: boolean = false;
   errorMsg: string = '';
   exitoMsg: string = '';
 
-  // Control del formulario
+  // Filtros (Requisito de regularidad)
+  filtroTexto: string = '';
+  filtroSoloBajoStock: boolean = false;
+
+  // Estado del formulario
   mostrarFormulario: boolean = false;
   modoEdicion: boolean = false;
   productoForm: Producto = {
-    nombre: '',
-    descripcion: '',
-    stock: 0,
-    precio: 0
+    name: '',
+    description: '',
+    price: 0,
+    stock: 0
   };
 
   ngOnInit(): void {
@@ -48,104 +53,103 @@ export class ProductosComponent implements OnInit {
   cargarProductos(): void {
     this.cargando = true;
     this.errorMsg = '';
+
     this.http.get<Producto[]>(this.apiUrl).subscribe({
       next: (data) => {
-        // Mostramos solo los que no tengan borrado lógico
-        this.productos = data.filter(p => !p.eliminado);
+        this.productos = Array.isArray(data) ? data.filter(p => !p.delete) : [];
+        this.aplicarFiltros();
         this.cargando = false;
-        this.cdr.markForCheck();
       },
       error: (err) => {
-        this.errorMsg = this.mensajeDeError(err, 'No se pudieron cargar los productos.');
+        console.error('Error al cargar productos:', err);
+        this.errorMsg = `No se pudo conectar con el backend en ${this.apiUrl}. Verifique que NestJS esté activo.`;
         this.cargando = false;
-        this.cdr.markForCheck();
       }
+    });
+  }
+
+  aplicarFiltros(): void {
+    const busqueda = this.filtroTexto.trim().toLowerCase();
+
+    this.productosFiltrados = this.productos.filter(p => {
+      const coincideTexto = p.name.toLowerCase().includes(busqueda) ||
+        (p.description && p.description.toLowerCase().includes(busqueda));
+
+      const coincideStock = !this.filtroSoloBajoStock || p.stock <= 5;
+
+      return coincideTexto && coincideStock;
     });
   }
 
   abrirCrear(): void {
     this.modoEdicion = false;
-    this.errorMsg = '';
-    this.exitoMsg = '';
-    this.productoForm = { nombre: '', descripcion: '', stock: 0, precio: 0 };
+    this.productoForm = { name: '', description: '', price: 0, stock: 0 };
     this.mostrarFormulario = true;
+    this.errorMsg = '';
   }
 
   abrirEditar(p: Producto): void {
     this.modoEdicion = true;
-    this.errorMsg = '';
-    this.exitoMsg = '';
     this.productoForm = { ...p };
     this.mostrarFormulario = true;
+    this.errorMsg = '';
   }
 
   guardarProducto(): void {
+    if (!this.productoForm.name.trim()) {
+      alert('El nombre del producto es obligatorio.');
+      return;
+    }
+    if (this.productoForm.price < 0 || this.productoForm.stock < 0) {
+      alert('El precio y el stock deben ser números positivos.');
+      return;
+    }
+
+    this.cargando = true;
     this.errorMsg = '';
 
-    if (!this.productoForm.nombre.trim() || !this.productoForm.descripcion.trim()) {
-      this.errorMsg = 'Nombre y descripción son obligatorios.';
-      return;
-    }
-    if (!(Number(this.productoForm.precio) > 0)) {
-      this.errorMsg = 'El precio debe ser mayor a 0.';
-      return;
-    }
-    if (Number(this.productoForm.stock) < 0) {
-      this.errorMsg = 'El stock no puede ser negativo.';
-      return;
-    }
-
-    // Mandamos solo los 4 datos que acepta el backend (sin id)
-    const datos = {
-      nombre: this.productoForm.nombre.trim(),
-      descripcion: this.productoForm.descripcion.trim(),
-      stock: Number(this.productoForm.stock),
-      precio: Number(this.productoForm.precio)
-    };
-
-    if (this.modoEdicion && this.productoForm.id) {
-      // Modificar (PUT)
-      this.http.put(`${this.apiUrl}/${this.productoForm.id}`, datos).subscribe({
+    if (this.modoEdicion && this.productoForm.idProducto) {
+      // Modificar existente (PUT)
+      this.http.put(`${this.apiUrl}/${this.productoForm.idProducto}`, this.productoForm).subscribe({
         next: () => {
-          this.exitoMsg = 'Producto actualizado correctamente';
+          this.mostrarNotificacion('Producto actualizado con éxito');
           this.cerrarFormulario();
           this.cargarProductos();
         },
         error: (err) => {
-          this.errorMsg = this.mensajeDeError(err, 'Error al actualizar el producto');
-          this.cdr.markForCheck();
+          console.error('Error al actualizar:', err);
+          this.errorMsg = 'Error al actualizar el producto en el servidor.';
+          this.cargando = false;
         }
       });
     } else {
       // Crear nuevo (POST)
-      this.http.post(this.apiUrl, datos).subscribe({
+      this.http.post(this.apiUrl, this.productoForm).subscribe({
         next: () => {
-          this.exitoMsg = 'Producto creado con éxito';
+          this.mostrarNotificacion('Producto creado con éxito');
           this.cerrarFormulario();
           this.cargarProductos();
         },
         error: (err) => {
-          this.errorMsg = this.mensajeDeError(err, 'Error al guardar el producto');
-          this.cdr.markForCheck();
+          console.error('Error al guardar:', err);
+          this.errorMsg = 'Error al guardar el producto en el servidor.';
+          this.cargando = false;
         }
       });
     }
   }
 
   eliminarProducto(p: Producto): void {
-    if (!p.id) return;
-    if (confirm(`¿Seguro que deseas eliminar "${p.nombre}"?`)) {
-      this.http.delete(`${this.apiUrl}/${p.id}`).subscribe({
+    if (!p.idProducto) return;
+    if (confirm(`¿Confirma eliminar el producto "${p.name}"?`)) {
+      this.http.delete(`${this.apiUrl}/${p.idProducto}`).subscribe({
         next: () => {
-          this.exitoMsg = 'Producto eliminado correctamente';
-          if (this.productoSeleccionado?.id === p.id) {
-            this.productoSeleccionado = null;
-          }
+          this.mostrarNotificacion('Producto eliminado.');
           this.cargarProductos();
         },
         error: (err) => {
-          this.errorMsg = this.mensajeDeError(err, 'Error al eliminar el producto');
-          this.cdr.markForCheck();
+          console.error('Error al eliminar:', err);
+          this.errorMsg = 'Error al eliminar el producto.';
         }
       });
     }
@@ -163,20 +167,8 @@ export class ProductosComponent implements OnInit {
     this.mostrarFormulario = false;
   }
 
-  // Convierte un error del backend en un texto entendible para la pantalla.
-  private mensajeDeError(err: unknown, porDefecto: string): string {
-    if (err instanceof HttpErrorResponse) {
-      if (err.status === 0) {
-        return 'No se pudo conectar con el servidor NestJS (verifique que esté corriendo el backend).';
-      }
-      const mensaje = err.error?.message;
-      if (Array.isArray(mensaje)) {
-        return mensaje.join(' · ');
-      }
-      if (typeof mensaje === 'string') {
-        return mensaje;
-      }
-    }
-    return porDefecto;
+  private mostrarNotificacion(msg: string): void {
+    this.exitoMsg = msg;
+    setTimeout(() => (this.exitoMsg = ''), 3000);
   }
 }
