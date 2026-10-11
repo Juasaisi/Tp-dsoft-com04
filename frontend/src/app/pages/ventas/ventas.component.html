@@ -1,0 +1,237 @@
+<!-- frontend/src/app/pages/ventas/ventas.component.html -->
+<div class="ventas-page">
+
+  <!-- Navegación superior / Breadcrumb -->
+  <div class="top-nav-bar">
+    <a routerLink="/inicio" class="btn-volver-inicio">
+      <span class="arrow">←</span> Volver al inicio
+    </a>
+    <nav class="breadcrumbs" aria-label="Ruta de navegación">
+      <a routerLink="/inicio" class="crumb-link">Inicio</a>
+      <span class="crumb-separator">/</span>
+      <span class="crumb-current">Ventas</span>
+    </nav>
+  </div>
+
+  <!-- Encabezado de la página -->
+  <header class="page-header">
+    <div class="header-info">
+      <span class="tag-badge">Comercialización</span>
+      <h1>Registro de Ventas</h1>
+      <p class="subtitle">Gestión de operaciones, facturación y salidas de stock</p>
+    </div>
+    <button class="btn-nuevo" (click)="abrirCrear()">
+      <span class="icono-mas">+</span> Registrar Venta
+    </button>
+  </header>
+
+  <!-- Notificaciones -->
+  <div *ngIf="exitoMsg" class="banner banner-exito">
+    <span>✓ {{ exitoMsg }}</span>
+    <button class="btn-cerrar-banner" (click)="exitoMsg = ''">✕</button>
+  </div>
+
+  <div *ngIf="errorMsg" class="banner banner-error">
+    <span>⚠ {{ errorMsg }}</span>
+    <button class="btn-cerrar-banner" (click)="errorMsg = ''">✕</button>
+  </div>
+
+  <!-- Barra de Filtro por Fecha (Requisito de regularidad) -->
+  <section class="card-filtros">
+    <div class="filtro-fecha-group">
+      <label for="filtroFechaInput" class="filtro-label">Filtrar por fecha exacta:</label>
+      <input
+        id="filtroFechaInput"
+        type="date"
+        [(ngModel)]="filtroFecha"
+        (change)="aplicarFiltros()"
+      />
+    </div>
+    <button *ngIf="filtroFecha" class="btn-limpiar" (click)="limpiarFiltro()">
+      Ver todas las fechas
+    </button>
+  </section>
+
+  <!-- Estado de carga -->
+  <div *ngIf="cargando" class="loading-state">
+    <div class="loader-pulse"></div>
+    <p>Actualizando registros de ventas...</p>
+  </div>
+
+  <!-- FORMULARIO / MODAL: REGISTRAR NUEVA VENTA (Epic de negocio) -->
+  <section *ngIf="mostrarFormulario" class="card-formulario">
+    <div class="form-header">
+      <div>
+        <h3>Registrar Nueva Venta</h3>
+        <p class="form-sub">Seleccione el cliente e incorpore las piezas vendidas</p>
+      </div>
+      <button class="btn-icon-cerrar" (click)="cerrarFormulario()">✕</button>
+    </div>
+
+    <!-- 1. Selector de Cliente -->
+    <div class="seccion-form mb-4">
+      <label class="label-seccion">Cliente <span>*</span></label>
+      <select class="input-select" [(ngModel)]="clienteSeleccionadoId">
+        <option [ngValue]="null" disabled>-- Seleccione un cliente registrado --</option>
+        <option *ngFor="let c of clientes" [ngValue]="c.idCliente">
+          {{ c.name || c.nombre }} {{ c.surname || c.apellido }} — DNI: {{ c.dni }}
+        </option>
+      </select>
+    </div>
+
+    <!-- 2. Renglones de Productos -->
+    <div class="seccion-form">
+      <div class="d-flex-between mb-2">
+        <label class="label-seccion">Piezas y Cantidades <span>*</span></label>
+        <button type="button" class="btn-agregar-renglon" (click)="agregarRenglon()">
+          + Agregar Pieza
+        </button>
+      </div>
+
+      <div class="renglones-container">
+        <div *ngFor="let r of renglones; let i = index" class="fila-renglon">
+          <div class="col-prod">
+            <select class="input-select" [(ngModel)]="r.producto">
+              <option [ngValue]="null" disabled>-- Elegir accesorio --</option>
+              <option *ngFor="let p of productos" [ngValue]="p">
+                {{ p.name || p.nombre }} — ${{ (p.price ?? p.precio ?? 0) | number:'1.2-2' }} (Stock: {{ p.stock }})
+              </option>
+            </select>
+          </div>
+          <div class="col-cant">
+            <input
+              type="number"
+              min="1"
+              class="input-cant"
+              placeholder="Cant."
+              [(ngModel)]="r.cantidad"
+            />
+          </div>
+          <div class="col-subtotal">
+            ${{ calcularSubtotal(r) | number:'1.2-2' }}
+          </div>
+          <div class="col-quitar">
+            <button
+              type="button"
+              class="btn-quitar"
+              [disabled]="renglones.length === 1"
+              (click)="eliminarRenglon(i)"
+              title="Quitar renglón"
+            >✕</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total de la venta -->
+    <div class="total-resumen">
+      <span class="label-total">Total a facturar:</span>
+      <span class="monto-total">${{ calcularTotalFormulario() | number:'1.2-2' }}</span>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn-cancelar" (click)="cerrarFormulario()">Cancelar</button>
+      <button type="button" class="btn-guardar" (click)="guardarVenta()" [disabled]="cargando">
+        Confirmar Venta
+      </button>
+    </div>
+  </section>
+
+  <!-- FICHA DE DETALLE DE VENTA (Requisito de regularidad) -->
+  <section *ngIf="ventaSeleccionada" class="card-detalle">
+    <div class="detalle-header">
+      <div class="detalle-avatar">#{{ ventaSeleccionada.idVenta }}</div>
+      <div class="detalle-titles">
+        <h3>Venta #{{ ventaSeleccionada.idVenta }}</h3>
+        <span class="detalle-id">Fecha: {{ (ventaSeleccionada.date || ventaSeleccionada.fecha) | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+      <button class="btn-icon-cerrar" (click)="cerrarDetalle()">✕</button>
+    </div>
+
+    <div class="detalle-datos mb-3">
+      <div class="dato-item">
+        <span class="label">Cliente</span>
+        <span class="valor">
+          {{ (ventaSeleccionada.client?.name || ventaSeleccionada.cliente?.nombre || 'General') }} 
+          {{ (ventaSeleccionada.client?.surname || ventaSeleccionada.cliente?.apellido || '') }}
+        </span>
+      </div>
+      <div class="dato-item">
+        <span class="label">Total Operación</span>
+        <span class="valor valor-precio">${{ (ventaSeleccionada.total || 0) | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <h4 class="subtitulo-desglose">Artículos incluidos:</h4>
+    <div class="tabla-desglose-wrapper">
+      <table class="tabla-desglose">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th class="text-center">Cant.</th>
+            <th class="text-right">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let det of (ventaSeleccionada.saleDetails || ventaSeleccionada.detalles)">
+            <td>{{ det.product?.name || det.producto?.nombre || 'Artículo' }}</td>
+            <td class="text-center">{{ det.quantity || det.cantidad }}</td>
+            <td class="text-right">${{ (det.subtotal || 0) | number:'1.2-2' }}</td>
+          </tr>
+          <tr *ngIf="!(ventaSeleccionada.saleDetails?.length || ventaSeleccionada.detalles?.length)">
+            <td colspan="3" class="text-center text-muted">Sin detalles registrados en este comprobante.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TABLA DE VENTAS -->
+  <section class="card-tabla" *ngIf="!cargando">
+    <div class="tabla-topbar">
+      <span class="contador-badge">
+        Mostrando {{ ventasFiltradas.length }} venta(s)
+      </span>
+    </div>
+
+    <div class="table-container">
+      <table class="tabla-boutique">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Total</th>
+            <th class="th-acciones">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let v of ventasFiltradas">
+            <td class="td-id">#{{ v.idVenta }}</td>
+            <td>{{ (v.date || v.fecha) | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td class="td-cliente">
+              {{ (v.client?.name || v.cliente?.nombre || 'Cliente General') }} 
+              {{ (v.client?.surname || v.cliente?.apellido || '') }}
+            </td>
+            <td class="td-total">${{ (v.total || 0) | number:'1.2-2' }}</td>
+            <td class="td-acciones">
+              <div class="acciones-group">
+                <button class="btn-chip btn-detalle" (click)="verDetalle(v)">Detalle</button>
+                <button class="btn-chip btn-borrar" (click)="eliminarVenta(v)">Anular</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="ventasFiltradas.length === 0">
+            <td colspan="5" class="empty-state">
+              <p>No se encontraron ventas para el criterio seleccionado.</p>
+              <button *ngIf="!mostrarFormulario" class="btn-link" (click)="abrirCrear()">
+                + Registrar la primera venta
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
