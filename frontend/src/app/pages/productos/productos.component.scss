@@ -1,3 +1,5 @@
+// frontend/src/app/pages/productos/productos.component.scss
+
 $fondo-suave: #faf7f2;
 $blanco: #ffffff;
 $tinta-principal: #2d2621;
@@ -16,7 +18,7 @@ $rojo-suave: #c04a43;
   color: $tinta-principal;
 }
 
-/* Navegación superior / Breadcrumb */
+/* Breadcrumb */
 .top-nav-bar {
   display: flex;
   justify-content: space-between;
@@ -63,7 +65,7 @@ $rojo-suave: #c04a43;
     }
 
     .crumb-separator {
-      color: lighten($tinta-secundaria, 20%);
+      color: rgba($tinta-secundaria, 0.5);
       font-size: 0.8rem;
     }
 
@@ -165,7 +167,7 @@ $rojo-suave: #c04a43;
   }
 }
 
-/* Tarjeta de Filtros */
+/* Filtros */
 .card-filtros {
   background: $blanco;
   border: 1px solid $borde-suave;
@@ -197,7 +199,7 @@ $rojo-suave: #c04a43;
       font-size: 0.95rem;
       color: $tinta-principal;
       background: transparent;
-      &::placeholder { color: lighten($tinta-secundaria, 20%); }
+      &::placeholder { color: rgba($tinta-secundaria, 0.5); }
     }
   }
 
@@ -329,7 +331,7 @@ $rojo-suave: #c04a43;
   }
 }
 
-/* Tarjeta de Detalle */
+/* Ficha de Detalle */
 .card-detalle {
   background: #fbf9f6;
   border: 1px solid #e5ded5;
@@ -404,7 +406,7 @@ $rojo-suave: #c04a43;
   &:hover { color: $tinta-principal; }
 }
 
-/* Tabla de Catálogo */
+/* Tabla Catálogo */
 .card-tabla {
   background: $blanco;
   border: 1px solid $borde-suave;
@@ -539,7 +541,7 @@ $rojo-suave: #c04a43;
   }
 }
 
-/* Breakpoint Móvil (SM) */
+/* Breakpoint Móvil */
 @media (max-width: 680px) {
   .page-header {
     flex-direction: column;

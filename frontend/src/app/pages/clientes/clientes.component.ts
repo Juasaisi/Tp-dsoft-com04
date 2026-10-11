@@ -1,10 +1,8 @@
-// frontend/src/app/pages/clientes/clientes.component.ts
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
 
 export interface Cliente {
   idCliente?: number;
@@ -28,7 +26,9 @@ export interface Cliente {
 })
 export class ClientesComponent implements OnInit {
   private http = inject(HttpClient);
-  // Ruta exacta como figura en Swagger (C mayúscula)
+  private cdr = inject(ChangeDetectorRef);
+
+  // Intentamos con la ruta estándar
   private apiUrl = 'http://localhost:3000/api/v1/Cliente';
 
   clientes: Cliente[] = [];
@@ -49,20 +49,31 @@ export class ClientesComponent implements OnInit {
     this.cargando = true;
     this.errorMsg = '';
 
-    this.http.get<Cliente[]>(this.apiUrl)
-      .pipe(
-        // finalize apaga el spinner siempre
-        finalize(() => { this.cargando = false; })
-      )
-      .subscribe({
-        next: (data) => {
-          this.clientes = Array.isArray(data) ? data.filter(c => !c.delete) : [];
-        },
-        error: (err) => {
-          console.error('Error al cargar clientes:', err);
-          this.errorMsg = `No se pudo conectar a ${this.apiUrl}. Verifique que el backend esté activo.`;
-        }
-      });
+    this.http.get<Cliente[]>(this.apiUrl).subscribe({
+      next: (data) => {
+        this.clientes = Array.isArray(data) ? data.filter(c => !c.delete) : [];
+        this.cargando = false;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.warn('Fallo con /api/v1/Cliente, probando con /api/v1/cliente en minúscula...', err);
+        // Fallback automático por si el endpoint está declarado en minúscula
+        this.http.get<Cliente[]>('http://localhost:3000/api/v1/cliente').subscribe({
+          next: (data2) => {
+            this.apiUrl = 'http://localhost:3000/api/v1/cliente';
+            this.clientes = Array.isArray(data2) ? data2.filter(c => !c.delete) : [];
+            this.cargando = false;
+            this.cdr.markForCheck();
+          },
+          error: (err2) => {
+            console.error('Error al cargar clientes:', err2);
+            this.errorMsg = 'No se pudo conectar con el endpoint de clientes en NestJS.';
+            this.cargando = false;
+            this.cdr.markForCheck();
+          }
+        });
+      }
+    });
   }
 
   abrirCrear(): void {
@@ -87,8 +98,8 @@ export class ClientesComponent implements OnInit {
   }
 
   guardarCliente(): void {
-    if (!this.clienteForm.dni || !this.clienteForm.name || !this.clienteForm.surname) {
-      alert('DNI, Nombre y Apellido son obligatorios.');
+    if (!this.clienteForm.dni) {
+      alert('El DNI es obligatorio.');
       return;
     }
 
@@ -97,37 +108,41 @@ export class ClientesComponent implements OnInit {
 
     const payload = {
       dni: this.clienteForm.dni,
-      name: this.clienteForm.name,
-      nombre: this.clienteForm.name,
-      surname: this.clienteForm.surname,
-      apellido: this.clienteForm.surname,
-      phone: this.clienteForm.phone,
-      telefono: this.clienteForm.phone,
-      email: this.clienteForm.email
+      name: this.clienteForm.name || '',
+      nombre: this.clienteForm.name || '',
+      surname: this.clienteForm.surname || '',
+      apellido: this.clienteForm.surname || '',
+      phone: this.clienteForm.phone || '',
+      telefono: this.clienteForm.phone || '',
+      email: this.clienteForm.email || ''
     };
 
     if (this.modoEdicion && this.clienteForm.idCliente) {
-      this.http.put(`${this.apiUrl}/${this.clienteForm.idCliente}`, payload)
-        .pipe(finalize(() => { this.cargando = false; }))
-        .subscribe({
-          next: () => {
-            this.mostrarNotificacion('Cliente actualizado correctamente');
-            this.cerrarFormulario();
-            this.cargarClientes();
-          },
-          error: () => { this.errorMsg = 'Error al actualizar el cliente.'; }
-        });
+      this.http.put(`${this.apiUrl}/${this.clienteForm.idCliente}`, payload).subscribe({
+        next: () => {
+          this.mostrarNotificacion('Cliente actualizado correctamente');
+          this.cerrarFormulario();
+          this.cargarClientes();
+        },
+        error: () => { 
+          this.errorMsg = 'Error al actualizar el cliente.'; 
+          this.cargando = false;
+          this.cdr.markForCheck();
+        }
+      });
     } else {
-      this.http.post(this.apiUrl, payload)
-        .pipe(finalize(() => { this.cargando = false; }))
-        .subscribe({
-          next: () => {
-            this.mostrarNotificacion('Cliente creado con éxito');
-            this.cerrarFormulario();
-            this.cargarClientes();
-          },
-          error: () => { this.errorMsg = 'Error al guardar el cliente.'; }
-        });
+      this.http.post(this.apiUrl, payload).subscribe({
+        next: () => {
+          this.mostrarNotificacion('Cliente creado con éxito');
+          this.cerrarFormulario();
+          this.cargarClientes();
+        },
+        error: () => { 
+          this.errorMsg = 'Error al guardar el cliente.'; 
+          this.cargando = false;
+          this.cdr.markForCheck();
+        }
+      });
     }
   }
 
@@ -140,7 +155,10 @@ export class ClientesComponent implements OnInit {
           this.mostrarNotificacion('Cliente eliminado.');
           this.cargarClientes();
         },
-        error: () => { this.errorMsg = 'Error al eliminar el cliente.'; }
+        error: () => { 
+          this.errorMsg = 'Error al eliminar el cliente.'; 
+          this.cdr.markForCheck();
+        }
       });
     }
   }
@@ -159,6 +177,9 @@ export class ClientesComponent implements OnInit {
 
   private mostrarNotificacion(msg: string): void {
     this.exitoMsg = msg;
-    setTimeout(() => (this.exitoMsg = ''), 3000);
+    setTimeout(() => {
+      this.exitoMsg = '';
+      this.cdr.markForCheck();
+    }, 3000);
   }
 }

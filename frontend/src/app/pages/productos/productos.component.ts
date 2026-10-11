@@ -1,10 +1,8 @@
-// frontend/src/app/pages/productos/productos.component.ts
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
 
 export interface Producto {
   idProducto?: number;
@@ -27,6 +25,7 @@ export interface Producto {
 })
 export class ProductosComponent implements OnInit {
   private http = inject(HttpClient);
+  private cdr = inject(ChangeDetectorRef); // Inyección para actualizar la vista
   private apiUrl = 'http://localhost:3000/api/v1/productos';
 
   productos: Producto[] = [];
@@ -52,28 +51,26 @@ export class ProductosComponent implements OnInit {
     this.cargando = true;
     this.errorMsg = '';
 
-    this.http.get<Producto[]>(this.apiUrl)
-      .pipe(
-        // finalize garantiza apagar el spinner ante éxito o error
-        finalize(() => { this.cargando = false; })
-      )
-      .subscribe({
-        next: (data) => {
-          this.productos = Array.isArray(data) ? data.filter(p => !p.delete) : [];
-          this.aplicarFiltros();
-        },
-        error: (err) => {
-          console.error('Error al cargar productos:', err);
-          this.errorMsg = `No se pudo conectar con el backend en ${this.apiUrl}`;
-        }
-      });
+    this.http.get<Producto[]>(this.apiUrl).subscribe({
+      next: (data) => {
+        this.productos = Array.isArray(data) ? data.filter(p => !p.delete) : [];
+        this.aplicarFiltros();
+        this.cargando = false;
+        this.cdr.markForCheck(); // Fuerza a Angular a repintar la vista
+      },
+      error: (err) => {
+        console.error('Error al cargar productos:', err);
+        this.errorMsg = `No se pudo conectar con el backend en ${this.apiUrl}`;
+        this.cargando = false;
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   aplicarFiltros(): void {
     const busqueda = (this.filtroTexto || '').trim().toLowerCase();
 
     this.productosFiltrados = this.productos.filter(p => {
-      // Soporta tanto 'name' como 'nombre' sin riesgo de undefined
       const nom = ((p.name ?? p.nombre) || '').toString().toLowerCase();
       const desc = ((p.description ?? p.descripcion) || '').toString().toLowerCase();
 
@@ -126,27 +123,31 @@ export class ProductosComponent implements OnInit {
     };
 
     if (this.modoEdicion && this.productoForm.idProducto) {
-      this.http.put(`${this.apiUrl}/${this.productoForm.idProducto}`, payload)
-        .pipe(finalize(() => { this.cargando = false; }))
-        .subscribe({
-          next: () => {
-            this.mostrarNotificacion('Producto actualizado con éxito');
-            this.cerrarFormulario();
-            this.cargarProductos();
-          },
-          error: () => { this.errorMsg = 'Error al actualizar el producto.'; }
-        });
+      this.http.put(`${this.apiUrl}/${this.productoForm.idProducto}`, payload).subscribe({
+        next: () => {
+          this.mostrarNotificacion('Producto actualizado con éxito');
+          this.cerrarFormulario();
+          this.cargarProductos();
+        },
+        error: () => { 
+          this.errorMsg = 'Error al actualizar el producto.'; 
+          this.cargando = false;
+          this.cdr.markForCheck();
+        }
+      });
     } else {
-      this.http.post(this.apiUrl, payload)
-        .pipe(finalize(() => { this.cargando = false; }))
-        .subscribe({
-          next: () => {
-            this.mostrarNotificacion('Producto creado con éxito');
-            this.cerrarFormulario();
-            this.cargarProductos();
-          },
-          error: () => { this.errorMsg = 'Error al guardar el producto.'; }
-        });
+      this.http.post(this.apiUrl, payload).subscribe({
+        next: () => {
+          this.mostrarNotificacion('Producto creado con éxito');
+          this.cerrarFormulario();
+          this.cargarProductos();
+        },
+        error: () => { 
+          this.errorMsg = 'Error al guardar el producto.'; 
+          this.cargando = false;
+          this.cdr.markForCheck();
+        }
+      });
     }
   }
 
@@ -159,7 +160,10 @@ export class ProductosComponent implements OnInit {
           this.mostrarNotificacion('Producto eliminado.');
           this.cargarProductos();
         },
-        error: () => { this.errorMsg = 'Error al eliminar el producto.'; }
+        error: () => { 
+          this.errorMsg = 'Error al eliminar el producto.'; 
+          this.cdr.markForCheck();
+        }
       });
     }
   }
@@ -178,6 +182,9 @@ export class ProductosComponent implements OnInit {
 
   private mostrarNotificacion(msg: string): void {
     this.exitoMsg = msg;
-    setTimeout(() => (this.exitoMsg = ''), 3000);
+    setTimeout(() => {
+      this.exitoMsg = '';
+      this.cdr.markForCheck();
+    }, 3000);
   }
 }
