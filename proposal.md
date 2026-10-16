@@ -5,11 +5,6 @@
 * 54161- Saisi, Juana
 * 55123 - Azurmendi, Felicitas
 
-### Repositorios
-* [frontend app](http://hyperlinkToGihubOrGitlab)
-* [backend app](http://hyperlinkToGihubOrGitlab)
-*Nota*: si utiliza un monorepo indicar un solo link con fullstack app.
-
 ## Tema
 ### Descripción
 
