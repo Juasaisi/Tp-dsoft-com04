@@ -1,16 +1,11 @@
 <div class="inicio">
-  <header class="barra">
-    <a class="marca" routerLink="/">Gestión de Ventas</a>
-    <span class="barra__descripcion">Emprendimiento de accesorios</span>
-  </header>
 
   <main class="contenido">
     <section class="bienvenida">
       <span class="etiqueta">PANEL PRINCIPAL</span>
       <h1>Bienvenida al sistema</h1>
       <p>
-        Desde acá podés organizar los clientes y, próximamente,
-        los productos y las ventas del emprendimiento.
+        Desde acá podés organizar los clientes, los productos y las ventas del emprendimiento.
       </p>
     </section>
 
@@ -18,6 +13,12 @@
       <h2 id="secciones">Secciones</h2>
 
       <div class="tarjetas">
+        <a class="tarjeta" routerLink="/ventas">
+          <span class="tarjeta__icono" aria-hidden="true">🧾</span>
+          <h3>Ventas</h3>
+          <p>Registrá y consultá las ventas del emprendimiento.</p>
+          <span class="tarjeta__accion">Ir a Ventas →</span>
+        </a>
         <a class="tarjeta" routerLink="/clientes">
           <span class="tarjeta__icono" aria-hidden="true">👥</span>
           <h3>Clientes</h3>

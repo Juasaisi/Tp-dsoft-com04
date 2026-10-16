@@ -1,0 +1,138 @@
+$blanco: #ffffff;
+$fondo-suave: #faf7f2;
+$tinta-principal: #2d2621;
+$tinta-secundaria: #7a6e65;
+$borde-suave: #ebe5dc;
+$acento-calido: #c87444;
+$rojo-suave: #c04a43;
+$rojo-hover: #a83d37;
+ 
+// Mobile-first: base = celular, @media (min-width) = pantallas más grandes
+.dialogo-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 2000; // por encima del navbar (1000)
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba($tinta-principal, 0.45);
+  backdrop-filter: blur(3px);
+  animation: aparecer-fondo 0.18s ease-out;
+}
+ 
+.dialogo {
+  width: 100%;
+  max-width: 420px;
+  padding: 1.75rem 1.5rem 1.5rem;
+  background: $blanco;
+  border: 1px solid $borde-suave;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: $tinta-principal;
+  animation: aparecer-tarjeta 0.2s ease-out;
+ 
+  h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+ 
+  p {
+    margin: 0 0 1.5rem;
+    color: $tinta-secundaria;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+}
+ 
+.dialogo-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: rgba($acento-calido, 0.12);
+  color: $acento-calido;
+  font-size: 1.5rem;
+  font-weight: 700;
+ 
+  &.peligro {
+    background: rgba($rojo-suave, 0.12);
+    color: $rojo-suave;
+  }
+}
+ 
+.dialogo-acciones {
+  display: flex;
+  flex-direction: column-reverse; // en celular: el botón principal queda arriba
+  gap: 0.6rem;
+ 
+  button {
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+ 
+    &:active { transform: scale(0.98); }
+    &:focus-visible {
+      outline: 3px solid rgba($acento-calido, 0.4);
+      outline-offset: 2px;
+    }
+  }
+ 
+  .btn-cancelar {
+    background: transparent;
+    border: 1px solid $borde-suave;
+    color: $tinta-secundaria;
+    &:hover { background: $fondo-suave; }
+  }
+ 
+  .btn-confirmar {
+    background: $tinta-principal;
+    border: none;
+    color: $blanco;
+    &:hover { background: #453b34; }
+ 
+    &.peligro {
+      background: $rojo-suave;
+      &:hover { background: $rojo-hover; }
+    }
+  }
+}
+ 
+// SM en adelante: botones en fila
+@media (min-width: 576px) {
+  .dialogo {
+    padding: 2rem 2rem 1.75rem;
+  }
+ 
+  .dialogo-acciones {
+    flex-direction: row;
+    justify-content: center;
+ 
+    button { min-width: 140px; }
+  }
+}
+ 
+@keyframes aparecer-fondo {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+ 
+@keyframes aparecer-tarjeta {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+ 
+@media (prefers-reduced-motion: reduce) {
+  .dialogo-fondo,
+  .dialogo { animation: none; }
+}
+ 

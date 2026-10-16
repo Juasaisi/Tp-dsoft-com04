@@ -1,4 +1,3 @@
-<!-- frontend/src/app/pages/ventas/ventas.component.html -->
 <div class="ventas-page">
 
   <!-- Navegación superior / Breadcrumb -->
@@ -25,7 +24,7 @@
     </button>
   </header>
 
-  <!-- Notificaciones -->
+  <!-- Notificaciones de éxito y error -->
   <div *ngIf="exitoMsg" class="banner banner-exito">
     <span>✓ {{ exitoMsg }}</span>
     <button class="btn-cerrar-banner" (click)="exitoMsg = ''">✕</button>
@@ -58,7 +57,7 @@
     <p>Actualizando registros de ventas...</p>
   </div>
 
-  <!-- FORMULARIO / MODAL: REGISTRAR NUEVA VENTA (Epic de negocio) -->
+  <!-- FORMULARIO / MODAL: REGISTRAR NUEVA VENTA (Caso de uso principal) -->
   <section *ngIf="mostrarFormulario" class="card-formulario">
     <div class="form-header">
       <div>

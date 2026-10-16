@@ -1,0 +1,26 @@
+<div class="dialogo-fondo" (click)="onFondoClick($event)">
+  <div
+    class="dialogo"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="dialogo-titulo"
+    aria-describedby="dialogo-mensaje">
+ 
+    <div class="dialogo-icono" [class.peligro]="peligro" aria-hidden="true">
+      {{ peligro ? '!' : '?' }}
+    </div>
+ 
+    <h3 id="dialogo-titulo">{{ titulo }}</h3>
+    <p id="dialogo-mensaje">{{ mensaje }}</p>
+ 
+    <div class="dialogo-acciones">
+      <button #btnCancelar type="button" class="btn-cancelar" (click)="cancelar.emit()">
+        {{ textoCancelar }}
+      </button>
+      <button type="button" class="btn-confirmar" [class.peligro]="peligro" (click)="confirmar.emit()">
+        {{ textoConfirmar }}
+      </button>
+    </div>
+  </div>
+</div>
+ 

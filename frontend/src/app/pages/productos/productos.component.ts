@@ -3,60 +3,65 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
+ 
+// Los nombres de los campos son EXACTAMENTE los de la entidad Productos del back
 export interface Producto {
-  idProducto?: number;
-  name?: string;
-  nombre?: string;
-  description?: string;
-  descripcion?: string;
-  price?: number;
-  precio?: number;
-  stock?: number;
-  delete?: boolean;
+  id?: number;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  stock: number;
+  eliminado?: boolean;
 }
-
+ 
 @Component({
   selector: 'app-productos',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent],
   templateUrl: './productos.component.html',
   styleUrl: './productos.component.scss'
 })
 export class ProductosComponent implements OnInit {
   private http = inject(HttpClient);
-  private cdr = inject(ChangeDetectorRef); // Inyección para actualizar la vista
+  private cdr = inject(ChangeDetectorRef);
   private apiUrl = 'http://localhost:3000/api/v1/productos';
-
+ 
   productos: Producto[] = [];
   productosFiltrados: Producto[] = [];
   productoSeleccionado: Producto | null = null;
-
+  productoAEliminar: Producto | null = null; // si tiene valor, se muestra el modal de confirmación
+ 
   cargando: boolean = false;
   errorMsg: string = '';
   exitoMsg: string = '';
-
+ 
   filtroTexto: string = '';
   filtroSoloBajoStock: boolean = false;
-
+ 
   mostrarFormulario: boolean = false;
   modoEdicion: boolean = false;
-  productoForm: any = { name: '', description: '', price: 0, stock: 0 };
-
+  productoForm: Producto = this.productoVacio();
+ 
+  private productoVacio(): Producto {
+    return { nombre: '', descripcion: '', precio: 0, stock: 0 };
+  }
+ 
   ngOnInit(): void {
     this.cargarProductos();
   }
-
+ 
   cargarProductos(): void {
     this.cargando = true;
     this.errorMsg = '';
-
+ 
     this.http.get<Producto[]>(this.apiUrl).subscribe({
       next: (data) => {
-        this.productos = Array.isArray(data) ? data.filter(p => !p.delete) : [];
+        // El back ya devuelve solo los no eliminados; filtramos igual por seguridad
+        this.productos = Array.isArray(data) ? data.filter(p => !p.eliminado) : [];
         this.aplicarFiltros();
         this.cargando = false;
-        this.cdr.markForCheck(); // Fuerza a Angular a repintar la vista
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error al cargar productos:', err);
@@ -66,71 +71,62 @@ export class ProductosComponent implements OnInit {
       }
     });
   }
-
+ 
   aplicarFiltros(): void {
     const busqueda = (this.filtroTexto || '').trim().toLowerCase();
-
+ 
     this.productosFiltrados = this.productos.filter(p => {
-      const nom = ((p.name ?? p.nombre) || '').toString().toLowerCase();
-      const desc = ((p.description ?? p.descripcion) || '').toString().toLowerCase();
-
+      const nom = (p.nombre || '').toLowerCase();
+      const desc = (p.descripcion || '').toLowerCase();
+ 
       const coincideTexto = nom.includes(busqueda) || desc.includes(busqueda);
-      const stockActual = p.stock ?? (p as any).stockActual ?? 0;
-      const coincideStock = !this.filtroSoloBajoStock || stockActual <= 5;
-
+      const coincideStock = !this.filtroSoloBajoStock || (p.stock ?? 0) <= 5;
+ 
       return coincideTexto && coincideStock;
     });
   }
-
+ 
   abrirCrear(): void {
     this.modoEdicion = false;
-    this.productoForm = { name: '', description: '', price: 0, stock: 0 };
+    this.productoForm = this.productoVacio();
     this.mostrarFormulario = true;
     this.errorMsg = '';
   }
-
+ 
   abrirEditar(p: Producto): void {
     this.modoEdicion = true;
-    this.productoForm = {
-      idProducto: p.idProducto,
-      name: p.name || p.nombre || '',
-      description: p.description || p.descripcion || '',
-      price: p.price ?? p.precio ?? 0,
-      stock: p.stock ?? 0
-    };
+    this.productoForm = { ...p }; // copia, así no se modifica la fila mientras se edita
     this.mostrarFormulario = true;
     this.errorMsg = '';
   }
-
+ 
   guardarProducto(): void {
-    const nombreFinal = (this.productoForm.name || '').trim();
+    const nombreFinal = (this.productoForm.nombre || '').trim();
     if (!nombreFinal) {
       alert('El nombre del producto es obligatorio.');
       return;
     }
-
+ 
     this.cargando = true;
     this.errorMsg = '';
-
+ 
+    // Solo los campos que espera ProductosDto del back
     const payload = {
-      name: nombreFinal,
       nombre: nombreFinal,
-      description: this.productoForm.description,
-      descripcion: this.productoForm.description,
-      price: Number(this.productoForm.price),
-      precio: Number(this.productoForm.price),
+      descripcion: (this.productoForm.descripcion || '').trim(),
+      precio: Number(this.productoForm.precio),
       stock: Number(this.productoForm.stock)
     };
-
-    if (this.modoEdicion && this.productoForm.idProducto) {
-      this.http.put(`${this.apiUrl}/${this.productoForm.idProducto}`, payload).subscribe({
+ 
+    if (this.modoEdicion && this.productoForm.id) {
+      this.http.put(`${this.apiUrl}/${this.productoForm.id}`, payload).subscribe({
         next: () => {
           this.mostrarNotificacion('Producto actualizado con éxito');
           this.cerrarFormulario();
           this.cargarProductos();
         },
-        error: () => { 
-          this.errorMsg = 'Error al actualizar el producto.'; 
+        error: () => {
+          this.errorMsg = 'Error al actualizar el producto.';
           this.cargando = false;
           this.cdr.markForCheck();
         }
@@ -142,44 +138,55 @@ export class ProductosComponent implements OnInit {
           this.cerrarFormulario();
           this.cargarProductos();
         },
-        error: () => { 
-          this.errorMsg = 'Error al guardar el producto.'; 
+        error: () => {
+          this.errorMsg = 'Error al guardar el producto.';
           this.cargando = false;
           this.cdr.markForCheck();
         }
       });
     }
   }
-
+ 
+  // Paso 1: el botón "Borrar" solo abre el modal de confirmación
   eliminarProducto(p: Producto): void {
-    if (!p.idProducto) return;
-    const nom = p.name || p.nombre || 'este producto';
-    if (confirm(`¿Confirma eliminar "${nom}"?`)) {
-      this.http.delete(`${this.apiUrl}/${p.idProducto}`).subscribe({
-        next: () => {
-          this.mostrarNotificacion('Producto eliminado.');
-          this.cargarProductos();
-        },
-        error: () => { 
-          this.errorMsg = 'Error al eliminar el producto.'; 
-          this.cdr.markForCheck();
-        }
-      });
-    }
+    if (!p.id) return;
+    this.productoAEliminar = p;
   }
-
+ 
+  // Paso 2: si la persona confirma en el modal, recién ahí se borra
+  confirmarEliminacion(): void {
+    const p = this.productoAEliminar;
+    this.productoAEliminar = null;
+    if (!p?.id) return;
+ 
+    this.http.delete(`${this.apiUrl}/${p.id}`).subscribe({
+      next: () => {
+        this.mostrarNotificacion('Producto eliminado.');
+        this.cargarProductos();
+      },
+      error: () => {
+        this.errorMsg = 'Error al eliminar el producto.';
+        this.cdr.markForCheck();
+      }
+    });
+  }
+ 
+  cancelarEliminacion(): void {
+    this.productoAEliminar = null;
+  }
+ 
   verDetalle(p: Producto): void {
     this.productoSeleccionado = p;
   }
-
+ 
   cerrarDetalle(): void {
     this.productoSeleccionado = null;
   }
-
+ 
   cerrarFormulario(): void {
     this.mostrarFormulario = false;
   }
-
+ 
   private mostrarNotificacion(msg: string): void {
     this.exitoMsg = msg;
     setTimeout(() => {

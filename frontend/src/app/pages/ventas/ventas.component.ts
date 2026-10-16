@@ -1,11 +1,10 @@
-// frontend/src/app/pages/ventas/ventas.component.ts
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-// Interfaces tipadas directamente en el archivo
+// 1. Interfaces del modelo de datos para Ventas
 export interface Cliente {
   idCliente?: number;
   dni: string;
@@ -48,7 +47,8 @@ export interface Venta {
   delete?: boolean;
 }
 
-interface RenglonForm {
+// Estructura temporal para cada renglón que agregamos en el formulario
+interface RenglonItem {
   producto: Producto | null;
   cantidad: number;
 }
@@ -64,6 +64,7 @@ export class VentasComponent implements OnInit {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
 
+  // Endpoints del backend NestJS
   private apiUrlVentas = 'http://localhost:3000/api/v1/venta';
   private apiUrlClientes = 'http://localhost:3000/api/v1/Cliente';
   private apiUrlProductos = 'http://localhost:3000/api/v1/productos';
@@ -78,13 +79,13 @@ export class VentasComponent implements OnInit {
   errorMsg: string = '';
   exitoMsg: string = '';
 
-  // Filtro por fecha (Requisito de regularidad)
+  // Filtro por fecha (Requisito de regularidad de la cátedra)
   filtroFecha: string = '';
 
-  // Modal para Registrar Venta (Caso de uso principal)
+  // Control del formulario de nueva venta
   mostrarFormulario: boolean = false;
   clienteSeleccionadoId: number | null = null;
-  renglones: RenglonForm[] = [];
+  renglones: RenglonItem[] = [];
 
   ngOnInit(): void {
     this.cargarDatos();
@@ -94,7 +95,7 @@ export class VentasComponent implements OnInit {
     this.cargando = true;
     this.errorMsg = '';
 
-    // 1. Cargar Ventas
+    // 1. Cargar las ventas históricas
     this.http.get<Venta[]>(this.apiUrlVentas).subscribe({
       next: (data) => {
         this.ventas = Array.isArray(data) ? data.filter(v => !v.delete) : [];
@@ -103,17 +104,17 @@ export class VentasComponent implements OnInit {
         this.cdr.markForCheck();
       },
       error: () => {
-        // Fallback por si la ruta en NestJS está en plural /ventas
+        // Fallback por si la ruta está en plural
         this.http.get<Venta[]>('http://localhost:3000/api/v1/ventas').subscribe({
-          next: (data2) => {
+          next: (dataPlural) => {
             this.apiUrlVentas = 'http://localhost:3000/api/v1/ventas';
-            this.ventas = Array.isArray(data2) ? data2.filter(v => !v.delete) : [];
+            this.ventas = Array.isArray(dataPlural) ? dataPlural.filter(v => !v.delete) : [];
             this.aplicarFiltros();
             this.cargando = false;
             this.cdr.markForCheck();
           },
-          error: (err2) => {
-            console.error('Error al traer ventas:', err2);
+          error: (err) => {
+            console.error('Error al cargar ventas:', err);
             this.errorMsg = 'No se pudieron cargar las ventas desde el servidor.';
             this.cargando = false;
             this.cdr.markForCheck();
@@ -122,7 +123,7 @@ export class VentasComponent implements OnInit {
       }
     });
 
-    // 2. Cargar Clientes para el selector
+    // 2. Cargar Clientes para el desplegable del formulario
     this.http.get<Cliente[]>(this.apiUrlClientes).subscribe({
       next: (data) => {
         this.clientes = Array.isArray(data) ? data.filter(c => !(c as any).delete) : [];
@@ -130,32 +131,33 @@ export class VentasComponent implements OnInit {
       },
       error: () => {
         this.http.get<Cliente[]>('http://localhost:3000/api/v1/cliente').subscribe({
-          next: (data2) => {
-            this.clientes = Array.isArray(data2) ? data2.filter(c => !(c as any).delete) : [];
+          next: (dataMin) => {
+            this.clientes = Array.isArray(dataMin) ? dataMin.filter(c => !(c as any).delete) : [];
             this.cdr.markForCheck();
           }
         });
       }
     });
 
-    // 3. Cargar Productos con stock disponible
+    // 3. Cargar Productos disponibles para vender (stock > 0)
     this.http.get<Producto[]>(this.apiUrlProductos).subscribe({
       next: (data) => {
         this.productos = Array.isArray(data) ? data.filter(p => !(p as any).delete && ((p.stock ?? 0) > 0)) : [];
         this.cdr.markForCheck();
       },
-      error: (err) => console.error('Error al cargar productos en ventas:', err)
+      error: (err) => console.error('Error al cargar productos:', err)
     });
   }
 
+  // Filtro por fecha exacta
   aplicarFiltros(): void {
     if (!this.filtroFecha) {
       this.ventasFiltradas = [...this.ventas];
       return;
     }
     this.ventasFiltradas = this.ventas.filter(v => {
-      const f = (v.date || v.fecha || '').slice(0, 10);
-      return f === this.filtroFecha;
+      const fecha = (v.date || v.fecha || '').slice(0, 10);
+      return fecha === this.filtroFecha;
     });
   }
 
@@ -186,7 +188,7 @@ export class VentasComponent implements OnInit {
     }
   }
 
-  calcularSubtotal(r: RenglonForm): number {
+  calcularSubtotal(r: RenglonItem): number {
     if (!r.producto) return 0;
     const precio = r.producto.price ?? r.producto.precio ?? 0;
     return precio * (r.cantidad > 0 ? r.cantidad : 0);
@@ -204,11 +206,11 @@ export class VentasComponent implements OnInit {
 
     const renglonesValidos = this.renglones.filter(r => r.producto && r.cantidad > 0);
     if (renglonesValidos.length === 0) {
-      alert('Debe cargar al menos una pieza con cantidad válida.');
+      alert('Debe seleccionar al menos un producto con cantidad válida.');
       return;
     }
 
-    // Validación de stock local previa
+    // Validación de stock
     for (const r of renglonesValidos) {
       const stockDisp = r.producto?.stock ?? 0;
       if (r.cantidad > stockDisp) {
@@ -218,6 +220,7 @@ export class VentasComponent implements OnInit {
       }
     }
 
+    // Armamos el payload que NestJS espera
     const payload = {
       clientId: Number(this.clienteSeleccionadoId),
       clienteId: Number(this.clienteSeleccionadoId),
@@ -234,7 +237,7 @@ export class VentasComponent implements OnInit {
 
     this.http.post(this.apiUrlVentas, payload).subscribe({
       next: () => {
-        this.mostrarNotificacion('¡Venta registrada exitosamente!');
+        this.mostrarNotificacion('¡Venta registrada con éxito!');
         this.cerrarFormulario();
         this.cargarDatos();
       },

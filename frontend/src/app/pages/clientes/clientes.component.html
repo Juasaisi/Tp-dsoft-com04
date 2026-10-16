@@ -11,24 +11,24 @@
       <span>Nuevo cliente</span>
     </button>
   </header>
-
+ 
   <!-- Banners de notificación -->
   <div *ngIf="exitoMsg" class="banner banner-exito">
     <span>{{ exitoMsg }}</span>
     <button type="button" class="btn-cerrar-banner" (click)="exitoMsg = ''">✕</button>
   </div>
-
+ 
   <div *ngIf="errorMsg" class="banner banner-error">
     <span>{{ errorMsg }}</span>
     <button type="button" class="btn-cerrar-banner" (click)="errorMsg = ''">✕</button>
   </div>
-
+ 
   <!-- Spinner de carga -->
   <div *ngIf="cargando" class="loading-state">
     <div class="loader-pulse"></div>
     <p>Cargando lista de clientes...</p>
   </div>
-
+ 
   <!-- Formulario de Alta / Edición -->
   <section *ngIf="mostrarFormulario" class="card-formulario">
     <div class="form-header">
@@ -38,40 +38,40 @@
       </div>
       <button type="button" class="btn-icon-cerrar" (click)="cerrarFormulario()">✕</button>
     </div>
-
+ 
     <form (ngSubmit)="guardarCliente()" class="form-grid">
       <div class="campo campo-completo">
         <label>DNI <span>*</span></label>
         <input type="text" [(ngModel)]="clienteForm.dni" name="dni" placeholder="Ej: 40123456" required />
       </div>
-
+ 
       <div class="campo">
         <label>Nombre <span>*</span></label>
         <input type="text" [(ngModel)]="clienteForm.name" name="name" placeholder="Ej: Valentina" required />
       </div>
-
+ 
       <div class="campo">
         <label>Apellido <span>*</span></label>
         <input type="text" [(ngModel)]="clienteForm.surname" name="surname" placeholder="Ej: Rossi" required />
       </div>
-
+ 
       <div class="campo">
         <label>Teléfono / WhatsApp</label>
         <input type="tel" [(ngModel)]="clienteForm.phone" name="phone" placeholder="Ej: 341 555-1234" />
       </div>
-
+ 
       <div class="campo">
         <label>Correo Electrónico</label>
         <input type="email" [(ngModel)]="clienteForm.email" name="email" placeholder="cliente@correo.com" />
       </div>
-
+ 
       <div class="form-actions campo-completo">
         <button type="button" class="btn-cancelar" (click)="cerrarFormulario()">Cancelar</button>
         <button type="submit" class="btn-guardar">{{ modoEdicion ? 'Guardar cambios' : 'Dar de alta' }}</button>
       </div>
     </form>
   </section>
-
+ 
   <!-- Ficha de Detalle -->
   <section *ngIf="clienteSeleccionado" class="card-detalle">
     <div class="detalle-header">
@@ -84,7 +84,7 @@
       </div>
       <button type="button" class="btn-icon-cerrar" (click)="cerrarDetalle()">✕</button>
     </div>
-
+ 
     <div class="detalle-datos">
       <div class="dato-item">
         <span class="label">Documento</span>
@@ -100,13 +100,13 @@
       </div>
     </div>
   </section>
-
+ 
   <!-- Tabla de Clientes -->
   <section *ngIf="!cargando" class="card-tabla">
     <div class="tabla-topbar">
       <span class="contador-badge">{{ clientes.length }} {{ clientes.length === 1 ? 'cliente registrado' : 'clientes registrados' }}</span>
     </div>
-
+ 
     <div class="table-container">
       <table class="tabla-boutique">
         <thead>
@@ -142,7 +142,7 @@
               </div>
             </td>
           </tr>
-
+ 
           <tr *ngIf="clientes.length === 0">
             <td colspan="5" class="empty-state">
               <p>Todavía no agregaste ningún cliente.</p>
@@ -153,4 +153,16 @@
       </table>
     </div>
   </section>
+ 
+  <!-- Modal de confirmación para borrar -->
+  <app-confirm-dialog
+    *ngIf="clienteAEliminar"
+    titulo="Eliminar cliente"
+    [mensaje]="'¿Querés eliminar a ' + (clienteAEliminar.name || '') + ' ' + (clienteAEliminar.surname || '') + '? Dejará de aparecer en el directorio.'"
+    textoConfirmar="Sí, eliminar"
+    textoCancelar="Cancelar"
+    [peligro]="true"
+    (confirmar)="confirmarEliminacion()"
+    (cancelar)="cancelarEliminacion()">
+  </app-confirm-dialog>
 </div>

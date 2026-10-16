@@ -77,12 +77,12 @@
     <form (ngSubmit)="guardarProducto()" class="form-grid">
       <div class="campo campo-completo">
         <label>Nombre del Producto <span>*</span></label>
-        <input type="text" [(ngModel)]="productoForm.name" name="name" placeholder="Ej: Collar de Cuarzo Rosa" required />
+        <input type="text" [(ngModel)]="productoForm.nombre" name="nombre" placeholder="Ej: Collar de Cuarzo Rosa" required />
       </div>
 
       <div class="campo">
         <label>Precio Unitario ($) <span>*</span></label>
-        <input type="number" step="0.01" min="0" [(ngModel)]="productoForm.price" name="price" placeholder="Ej: 12000" required />
+        <input type="number" step="0.01" min="0" [(ngModel)]="productoForm.precio" name="precio" placeholder="Ej: 12000" required />
       </div>
 
       <div class="campo">
@@ -91,8 +91,8 @@
       </div>
 
       <div class="campo campo-completo">
-        <label>Descripción / Materiales</label>
-        <textarea [(ngModel)]="productoForm.description" name="description" rows="2" placeholder="Ej: Cadena de acero quirúrgico con dije de piedra natural engarzada"></textarea>
+        <label>Descripción / Materiales <span>*</span></label>
+        <textarea [(ngModel)]="productoForm.descripcion" name="descripcion" required rows="2" placeholder="Ej: Cadena de acero quirúrgico con dije de piedra natural engarzada"></textarea>
       </div>
 
       <div class="form-actions campo-completo">
@@ -107,8 +107,8 @@
     <div class="detalle-header">
       <div class="detalle-avatar">✦</div>
       <div class="detalle-titles">
-        <h3>{{ productoSeleccionado?.name || productoSeleccionado?.nombre }}</h3>
-        <span class="detalle-id">Identificador: #{{ productoSeleccionado?.idProducto }}</span>
+        <h3>{{ productoSeleccionado?.nombre }}</h3>
+        <span class="detalle-id">Identificador: #{{ productoSeleccionado?.id }}</span>
       </div>
       <button type="button" class="btn-icon-cerrar" (click)="cerrarDetalle()">✕</button>
     </div>
@@ -116,7 +116,7 @@
     <div class="detalle-datos">
       <div class="dato-item">
         <span class="label">Precio Unitario</span>
-        <span class="valor valor-precio">${{ (productoSeleccionado?.price ?? productoSeleccionado?.precio ?? 0) | number:'1.2-2' }}</span>
+        <span class="valor valor-precio">${{ (productoSeleccionado?.precio ?? 0) | number:'1.2-2' }}</span>
       </div>
 
       <div class="dato-item">
@@ -129,7 +129,7 @@
 
       <div class="dato-item dato-ancho-completo">
         <span class="label">Detalles / Materiales</span>
-        <span class="valor">{{ productoSeleccionado?.description || productoSeleccionado?.descripcion || 'Sin descripción adicional registrada' }}</span>
+        <span class="valor">{{ productoSeleccionado?.descripcion || 'Sin descripción adicional registrada' }}</span>
       </div>
     </div>
   </section>
@@ -156,12 +156,12 @@
               <div class="producto-cell">
                 <div class="avatar-chico">✦</div>
                 <div>
-                  <div class="nombre-principal">{{ p.name }}</div>
-                  <div class="sub-chico">{{ p.description || 'Accesorio artesanal' }}</div>
+                  <div class="nombre-principal">{{ p.nombre }}</div>
+                  <div class="sub-chico">{{ p.descripcion || 'Accesorio artesanal' }}</div>
                 </div>
               </div>
             </td>
-            <td class="td-precio">${{ p.price | number:'1.2-2' }}</td>
+            <td class="td-precio">${{ p.precio | number:'1.2-2' }}</td>
             <td>
               <span class="badge-stock" [class.badge-alerta]="(p.stock ?? 0) <=5" [class.badge-normal]="(p.stock ?? 0) >5">
                 {{ p.stock ?? 0 }} u.
