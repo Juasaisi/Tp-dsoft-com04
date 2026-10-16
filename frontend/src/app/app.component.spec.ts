@@ -23,6 +23,6 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.brand-title')?.textContent).toContain('SigmaOS');
+    expect(compiled.querySelector('.brand-title')?.textContent).toContain('Ámbar');
   });
 });

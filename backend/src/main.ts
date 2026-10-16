@@ -11,7 +11,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   
    const config = new DocumentBuilder()
-    .setTitle('Documentacion TP')
+    .setTitle('Ámbar - API')
     .setDescription('Se va a decumentar cada parte del proyeto')
     .setVersion('1.0')
     .build();
