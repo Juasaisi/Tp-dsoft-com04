@@ -1,55 +1,96 @@
-# Propuesta TP DSW
+# SigmaOS
 
-## Grupo
-### Integrantes
-* 54161- Saisi, Juana
-* 55123 - Azurmendi, Felicitas
+Trabajo Práctico de Desarrollo de Software — UTN Facultad Regional Rosario (Comisión 304).
 
-### Repositorios
-* [frontend app](http://hyperlinkToGihubOrGitlab)
-* [backend app](http://hyperlinkToGihubOrGitlab)
+## Integrantes
 
-## Tema
-### Descripción
+- 54161 - Saisi, Juana
+- 55123 - Azurmendi, Felicitas
 
-*Sistema de gestión de ventas para un emprendimiento de accesorios artesanales. Permite administrar productos y su stock, registrar ventas y llevar un control de clientes. Además, permite gestionar los usuarios que acceden al sistema según su rol. El sistema busca automatizar tareas que actualmente se realizan de forma manual, centralizando la información de ventas, productos, stock y clientes en un solo lugar.*
+## Repositorios
 
-### Tecnologías utilizadas
+- **Repositorio del proyecto:** [https://github.com/Juasaisi/Tp-dsoft-com04](https://github.com/Juasaisi/Tp-dsoft-com04)
+- **Repositorio de la cátedra:** [https://github.com/utnfrrodsw/tp](https://github.com/utnfrrodsw/tp)
 
-- Backend: Node.js con TypeScript
-- Frontend: a definir
-- Base de datos: a definir
-- Control de versiones: Git y GitHub
-  
-### Modelo
-https://app.diagrams.net/#G1T11jYeY_qR7FxvZmBbJ7FdSLdI3C0bG_#%7B%22pageId%22%3A%22FupV3o8o4jS1qKbRf3Cx%22%7D
+## ¿De qué trata el proyecto?
 
-## Alcance Funcional 
+**SigmaOS** es una aplicación web full stack diseñada para la gestión comercial y administrativa de un emprendimiento de accesorios artesanales.
 
-### Alcance Mínimo
+El sistema busca reemplazar los registros informales y manuales, centralizando en una plataforma digital:
+- El catálogo de **productos** y el control de su inventario.
+- La administración y seguimiento de **clientes**.
+- El registro de **ventas**, calculando subtotales, totales y controlando el stock disponible.
+- La consulta histórica de ventas con el desglose detallado de sus ítems.
 
+## Tecnologías utilizadas
 
-Regularidad:
-Req | Detalle
-|:-|:-|
-|CRUD simple | 1. CRUD Producto<br>2. CRUD Cliente|
-CRUD dependiente | 1. CRUD Venta {depende de} CRUD Cliente y se compone de DetalleVenta asociados a Producto|
-|Listado + detalle | 1. Listado de productos filtrado por nombre o stock → detalle completo del producto<br>2. Listado de ventas filtrado por rango de fechas → detalle completo de la venta, cliente, productos, cantidades, subtotales y total
-CUU/Epic | 1. Registrar una venta con uno o más productos y cantidades, calculando subtotales y total|
+El proyecto está desarrollado bajo una arquitectura desacoplada en dos partes comunicadas mediante una **API REST**:
 
+- **Backend:** NestJS, TypeScript, TypeORM y base de datos relacional MySQL. Documentación interactiva con Swagger OpenAPI.
+- **Frontend:** Angular (Standalone Components), TypeScript, HTML5, SCSS y Bootstrap (diseño responsive mobile-first).
 
-Adicionales para Aprobación:
+## Cómo correrlo
 
-Req | Detalle
-|:-|:-|
-|CRUD | 1. CRUD Producto<br>2. CRUD Cliente<br>3. CRUD Venta<br>4. CRUD Usuario|
-CUU/Epic | 1. Registrar una venta: seleccionar cliente, agregar uno o más productos y cantidades, generar los detalles de venta y calcular el total<br>2. Actualizar y controlar el stock de los productos a partir de las ventas registradas
+Para ejecutar el proyecto en tu entorno local es necesario tener instalados **Node.js** (v18 o superior), **npm** y un servidor **MySQL** activo (mediante XAMPP, MySQL Workbench o servicio local).
 
+### 1. Clonar el repositorio
 
-### Alcance Adicional Voluntario
+```bash
+git clone [https://github.com/Juasaisi/Tp-dsoft-com04.git](https://github.com/Juasaisi/Tp-dsoft-com04.git)
+cd Tp-dsoft-com04
+```
 
-Req | Detalle
-|:-|:-|
-|Listados | 1. Listado de productos con filtro por bajo stock<br>2. Listado de ventas con filtro por rango de fechas<br>3. Listado de clientes con historial de ventas
-|CUU/Epic | 1. Consultar productos con bajo stock<br>2. Consultar resumen de ventas e ingresos por período|
-|Otros | 1. Mostrar alertas de stock bajo
+### 2. Configurar la base de datos
+
+1. Iniciar el servicio de MySQL.
+2. Crear una base de datos llamada `base` (o el nombre configurado en el archivo de conexión).
+3. Verificar los datos de conexión en el backend:
+   `backend/src/config/typeorm.config.ts`
+
+### 3. Ejecutar el Backend (NestJS)
+
+Abrir una terminal en la carpeta del backend:
+
+```bash
+cd backend
+npm install
+npm run start:dev
+```
+
+El backend se iniciará en `http://localhost:3000`.
+
+* Documentación viva de Swagger: [http://localhost:3000/swagger](http://localhost:3000/swagger)
+* Prefijo global de la API: `/api/v1`
+
+### 4. Ejecutar el Frontend (Angular)
+
+Abrir una segunda terminal en la carpeta del frontend:
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+Abrir la aplicación en el navegador web:
+👉 [http://localhost:4200](http://localhost:4200)
+
+> **Nota:** Para que la aplicación funcione de forma integral, deben estar ejecutándose en simultáneo MySQL, el backend (puerto 3000) y el frontend (puerto 4200).
+
+## Alcance del Trabajo Práctico (Regularidad)
+
+Para la instancia de regularidad (grupo de 2 integrantes), el sistema cubre los requisitos exigidos por la cátedra:
+
+| Requisito | Detalle funcional | Implementación |
+| :--- | :--- | :--- |
+| **CRUD Simple 1** | Gestión de Clientes | Alta, baja, modificación, listado y panel de detalle de clientes. |
+| **CRUD Simple 2** | Gestión de Productos | Alta, baja, modificación, listado y panel de detalle de productos. |
+| **CRUD Dependiente** | Gestión de Ventas | Una venta depende de un cliente existente y se compone de múltiples ítems de detalle asociados a productos. |
+| **Listados con filtro y detalle** | Búsqueda y desglose | • Listado de productos filtrable por nombre/descripción y alerta de stock bajo (≤ 5).<br>• Listado de ventas con filtro por fechas y modal de detalle completo con renglones y totales. |
+| **CUU / Epic de Negocio** | Registrar una venta | Selección de cliente, carga dinámica de productos con cantidades, cálculo de subtotales y total en tiempo real, validación de stock y persistencia en MySQL. |
+| **UX/UI & Mobile-First** | Frontend Angular | Navbar superior unificada, adaptabilidad en 3 breakpoints (SM, MD, LG) y manejo amigable de errores sin bloqueos de interfaz. |
+
+## Propuesta original y documentación
+
+- El detalle completo de la propuesta y los alcances futuros para aprobación directa se encuentran en [proposal.md](proposal.md).
+- El modelo entidad-relación y diagramas pueden consultarse en [Diagrams.net](https://app.diagrams.net/#G1T11jYeY_qR7FxvZmBbJ7FdSLdI3C0bG_#%7B%22pageId%22%3A%22FupV3o8o4jS1qKbRf3Cx%22%7D)
