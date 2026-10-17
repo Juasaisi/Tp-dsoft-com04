@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -16,7 +16,7 @@ export interface Cliente {
   email?: string;
   delete?: boolean;
 }
- 
+
 @Component({
   selector: 'app-clientes',
   standalone: true,
@@ -27,29 +27,29 @@ export interface Cliente {
 export class ClientesComponent implements OnInit {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
- 
+
   // Intentamos con la ruta estándar
   private apiUrl = 'http://localhost:3000/api/v1/Cliente';
- 
+
   clientes: Cliente[] = [];
   clienteSeleccionado: Cliente | null = null;
   clienteAEliminar: Cliente | null = null; // si tiene valor, se muestra el modal de confirmación
   cargando: boolean = false;
   errorMsg: string = '';
   exitoMsg: string = '';
- 
+
   mostrarFormulario: boolean = false;
   modoEdicion: boolean = false;
   clienteForm: any = { dni: '', name: '', surname: '', phone: '', email: '' };
- 
+
   ngOnInit(): void {
     this.cargarClientes();
   }
- 
+
   cargarClientes(): void {
     this.cargando = true;
     this.errorMsg = '';
- 
+
     this.http.get<Cliente[]>(this.apiUrl).subscribe({
       next: (data) => {
         this.clientes = Array.isArray(data) ? data.filter(c => !c.delete) : [];
@@ -76,14 +76,14 @@ export class ClientesComponent implements OnInit {
       }
     });
   }
- 
+
   abrirCrear(): void {
     this.modoEdicion = false;
     this.clienteForm = { dni: '', name: '', surname: '', phone: '', email: '' };
     this.mostrarFormulario = true;
     this.errorMsg = '';
   }
- 
+
   abrirEditar(c: Cliente): void {
     this.modoEdicion = true;
     this.clienteForm = {
@@ -97,16 +97,16 @@ export class ClientesComponent implements OnInit {
     this.mostrarFormulario = true;
     this.errorMsg = '';
   }
- 
+
   guardarCliente(): void {
     if (!this.clienteForm.dni) {
       alert('El DNI es obligatorio.');
       return;
     }
- 
+
     this.cargando = true;
     this.errorMsg = '';
- 
+
     const payload = {
       dni: this.clienteForm.dni,
       name: this.clienteForm.name || '',
@@ -117,7 +117,7 @@ export class ClientesComponent implements OnInit {
       telefono: this.clienteForm.phone || '',
       email: this.clienteForm.email || ''
     };
- 
+
     if (this.modoEdicion && this.clienteForm.idCliente) {
       this.http.put(`${this.apiUrl}/${this.clienteForm.idCliente}`, payload).subscribe({
         next: () => {
@@ -125,8 +125,8 @@ export class ClientesComponent implements OnInit {
           this.cerrarFormulario();
           this.cargarClientes();
         },
-        error: () => { 
-          this.errorMsg = 'Error al actualizar el cliente.'; 
+        error: (err) => {
+          this.errorMsg = this.mensajeDeError(err, 'Error al actualizar el cliente.');
           this.cargando = false;
           this.cdr.markForCheck();
         }
@@ -138,55 +138,74 @@ export class ClientesComponent implements OnInit {
           this.cerrarFormulario();
           this.cargarClientes();
         },
-        error: () => { 
-          this.errorMsg = 'Error al guardar el cliente.'; 
+        error: (err) => {
+          this.errorMsg = this.mensajeDeError(err, 'Error al guardar el cliente.');
           this.cargando = false;
           this.cdr.markForCheck();
         }
       });
     }
   }
- 
+
   // Paso 1: el botón "Borrar" solo abre el modal de confirmación
   eliminarCliente(c: Cliente): void {
     if (!c.idCliente) return;
     this.clienteAEliminar = c;
   }
- 
+
   // Paso 2: si la persona confirma en el modal, recién ahí se borra
   confirmarEliminacion(): void {
     const c = this.clienteAEliminar;
     this.clienteAEliminar = null;
     if (!c?.idCliente) return;
- 
+
     this.http.delete(`${this.apiUrl}/${c.idCliente}`).subscribe({
       next: () => {
         this.mostrarNotificacion('Cliente eliminado.');
         this.cargarClientes();
       },
-      error: () => {
-        this.errorMsg = 'Error al eliminar el cliente.';
+      error: (err) => {
+        this.errorMsg = this.mensajeDeError(err, 'Error al eliminar el cliente.');
         this.cdr.markForCheck();
       }
     });
   }
- 
+
   cancelarEliminacion(): void {
     this.clienteAEliminar = null;
   }
- 
+
   verDetalle(c: Cliente): void {
     this.clienteSeleccionado = c;
   }
- 
+
   cerrarDetalle(): void {
     this.clienteSeleccionado = null;
   }
- 
+
   cerrarFormulario(): void {
     this.mostrarFormulario = false;
   }
- 
+
+  // Convierte el error que devuelve el backend en un texto para mostrar en pantalla.
+  private mensajeDeError(err: unknown, porDefecto: string): string {
+    if (err instanceof HttpErrorResponse) {
+      // status 0 = ni siquiera llegó al servidor (backend apagado)
+      if (err.status === 0) {
+        return 'No se pudo conectar con el servidor. Comprobá que el backend esté funcionando.';
+      }
+      // El backend manda el motivo en "message": un texto o una lista de textos.
+      const mensaje = err.error?.message;
+      if (Array.isArray(mensaje)) {
+        return mensaje.join(' · ');
+      }
+      if (typeof mensaje === 'string') {
+        return mensaje;
+      }
+    }
+    return porDefecto;
+  }
+
   private mostrarNotificacion(msg: string): void {
     this.exitoMsg = msg;
     setTimeout(() => {

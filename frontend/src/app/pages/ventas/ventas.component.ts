@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -17,6 +17,7 @@ export interface Cliente {
 }
 
 export interface Producto {
+  id?: number; // así se llama el id del producto en el backend
   idProducto?: number;
   name?: string;
   nombre?: string;
@@ -220,14 +221,13 @@ export class VentasComponent implements OnInit {
       }
     }
 
-    // Armamos el payload que NestJS espera
+    // Pedido que espera el backend (POST /api/v1/venta):
+    // solo cliente y productos con cantidad. El total y los precios
+    // los calcula el servidor.
     const payload = {
-      clientId: Number(this.clienteSeleccionadoId),
-      clienteId: Number(this.clienteSeleccionadoId),
+      idCliente: Number(this.clienteSeleccionadoId),
       items: renglonesValidos.map(r => ({
-        productId: Number(r.producto?.idProducto),
-        productoId: Number(r.producto?.idProducto),
-        quantity: Number(r.cantidad),
+        idProducto: Number(r.producto?.id ?? r.producto?.idProducto),
         cantidad: Number(r.cantidad)
       }))
     };
@@ -243,7 +243,7 @@ export class VentasComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al registrar venta:', err);
-        this.errorMsg = 'Error al registrar la venta en el servidor.';
+        this.errorMsg = this.mensajeDeError(err, 'Error al registrar la venta en el servidor.');
         this.cargando = false;
         this.cdr.markForCheck();
       }
@@ -273,6 +273,25 @@ export class VentasComponent implements OnInit {
         }
       });
     }
+  }
+
+  // Convierte el error que devuelve el backend en un texto para mostrar en pantalla.
+  private mensajeDeError(err: unknown, porDefecto: string): string {
+    if (err instanceof HttpErrorResponse) {
+      // status 0 = ni siquiera llegó al servidor (backend apagado)
+      if (err.status === 0) {
+        return 'No se pudo conectar con el servidor. Comprobá que el backend esté funcionando.';
+      }
+      // El backend manda el motivo en "message": un texto o una lista de textos.
+      const mensaje = err.error?.message;
+      if (Array.isArray(mensaje)) {
+        return mensaje.join(' · ');
+      }
+      if (typeof mensaje === 'string') {
+        return mensaje;
+      }
+    }
+    return porDefecto;
   }
 
   private mostrarNotificacion(msg: string): void {
