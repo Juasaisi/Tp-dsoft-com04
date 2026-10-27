@@ -165,4 +165,19 @@ async deleteDetalle(id: number) {
     return { mensaje: 'Detalle eliminado correctamente' };
   });
 }
+async findDetalle(id: number) {
+  const detalle = await this.detalleRepository.findOne({
+    where: { idsale_d: id },
+    relations: {
+      venta: true,
+      producto: true,
+    },
+  });
+
+  if (!detalle) {
+    throw new NotFoundException('Detalle de venta no encontrado');
+  }
+
+  return detalle;
+}
 }

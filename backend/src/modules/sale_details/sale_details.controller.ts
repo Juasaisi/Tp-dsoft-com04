@@ -43,4 +43,8 @@ updateDetalle(
 deleteDetalle(@Param('id', ParseIntPipe) id: number) {
   return this.saleDetailsService.deleteDetalle(id);
 }
+@Get(':id')
+getDetalle(@Param('id', ParseIntPipe) id: number) {
+  return this.saleDetailsService.findDetalle(id);
+}
 }
