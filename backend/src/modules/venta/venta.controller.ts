@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { VentaService } from './venta.service';
 import { VentaDto } from './dto/venta-dto';
 import { RegistrarVentaDto } from './dto/registrar-venta-dto';
@@ -34,4 +34,8 @@ export class VentaController {
     updateVenta(@Body() venta: VentaDto) {
         return this.VentaService.updateVenta(venta);
     }
+    @Delete(':idventa')
+anularVenta(@Param('idventa', ParseIntPipe) idventa: number) {
+  return this.VentaService.anularVenta(idventa);
+}
 }

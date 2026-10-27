@@ -150,4 +150,38 @@ export class VentaService {
   async updateVenta(venta: VentaDto) {
     return this.ventaRepository.save(venta);
   }
+  async anularVenta(idventa: number) {
+  return this.dataSource.transaction(async (manager) => {
+
+    // Buscar la venta junto con sus productos vendidos
+    const venta = await manager.findOne(Venta, {
+      where: { idventa },
+      relations: {
+        detalles: {
+          producto: true,
+        },
+      },
+    });
+
+    if (!venta) {
+      throw new NotFoundException('Venta no encontrada');
+    }
+
+    if (venta.delete) {
+      throw new ConflictException('La venta ya está anulada');
+    }
+
+    // Devolver al stock los productos de la venta
+    for (const detalle of venta.detalles) {
+      detalle.producto.stock += detalle.cantidad;
+      await manager.save(detalle.producto);
+    }
+
+    // Marcar la venta como anulada sin borrar su historial
+    venta.delete = true;
+    await manager.save(venta);
+
+    return { mensaje: 'Venta anulada correctamente' };
+  });
+}
 }

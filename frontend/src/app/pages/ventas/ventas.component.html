@@ -234,3 +234,12 @@
     </div>
   </section>
 </div>
+<app-confirm-dialog
+  *ngIf="ventaAAnular"
+  titulo="Anular venta"
+  mensaje="¿Estás seguro de que querés anular esta venta? Se devolverán los productos al stock."
+  textoConfirmar="Anular venta"
+  [peligro]="true"
+  (confirmar)="confirmarAnulacion()"
+  (cancelar)="cancelarAnulacion()">
+</app-confirm-dialog>

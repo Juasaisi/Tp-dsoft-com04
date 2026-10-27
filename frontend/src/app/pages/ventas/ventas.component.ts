@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 
 // 1. Interfaces del modelo de datos para Ventas
 export interface Cliente {
@@ -57,11 +58,12 @@ interface RenglonItem {
 @Component({
   selector: 'app-ventas',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent],
   templateUrl: './ventas.component.html',
   styleUrl: './ventas.component.scss'
 })
 export class VentasComponent implements OnInit {
+  ventaAAnular: Venta | null = null;
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
 
@@ -258,22 +260,35 @@ export class VentasComponent implements OnInit {
     this.ventaSeleccionada = null;
   }
 
-  eliminarVenta(v: Venta): void {
-    if (!v.idVenta) return;
-    if (confirm(`¿Confirma anular la venta #${v.idVenta}?`)) {
-      this.http.delete(`${this.apiUrlVentas}/${v.idVenta}`).subscribe({
-        next: () => {
-          this.mostrarNotificacion('Venta anulada.');
-          this.cargarDatos();
-        },
-        error: (err) => {
-          console.error('Error al anular venta:', err);
-          this.errorMsg = 'Error al anular la venta.';
-          this.cdr.markForCheck();
-        }
-      });
+eliminarVenta(v: Venta): void {
+  this.ventaAAnular = v;
+}
+
+cancelarAnulacion(): void {
+  this.ventaAAnular = null;
+}
+
+confirmarAnulacion(): void {
+  const v = this.ventaAAnular;
+  this.ventaAAnular = null;
+
+  if (!v) return;
+
+  const id = v.idVenta || (v as any).idventa;
+  if (!id) return;
+
+  this.http.delete(`${this.apiUrlVentas}/${id}`).subscribe({
+    next: () => {
+      this.mostrarNotificacion('Venta anulada.');
+      this.cargarDatos();
+    },
+    error: (err) => {
+      console.error('Error al anular venta:', err);
+      this.errorMsg = 'Error al anular la venta.';
+      this.cdr.markForCheck();
     }
-  }
+  });
+}
 
   // Convierte el error que devuelve el backend en un texto para mostrar en pantalla.
   private mensajeDeError(err: unknown, porDefecto: string): string {
