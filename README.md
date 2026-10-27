@@ -1,48 +1,96 @@
-# Propuesta TP DSW
+# Ámbar
 
-## Grupo
-### Integrantes
-* 54161- Saisi, Juana
-* 55123 - Azurmendi, Felicitas
+Trabajo Práctico de Desarrollo de Software — UTN Facultad Regional Rosario (Comisión 304).
 
-### Repositorios
-* [frontend app](http://hyperlinkToGihubOrGitlab)
-* [backend app](http://hyperlinkToGihubOrGitlab)
-*Nota*: si utiliza un monorepo indicar un solo link con fullstack app.
+## Integrantes
 
-## Tema
-### Descripción
+- 54161 - Saisi, Juana
+- 55123 - Azurmendi, Felicitas
 
-*Sistema de gestión para un emprendimiento de accesorios artesanales. Permite administrar el stock de productos y materiales, registrar ventas y encargues, y llevar un control de clientes. Automatiza tareas que actualmente se realizan de forma manual, centralizando la información del negocio en un solo lugar.*
+## Repositorios
 
-### Modelo
-https://drive.google.com/file/d/1k3cub7eyTo49OETOJNqR609vjnXQlsvC/view?usp=sharing
+- **Repositorio del proyecto:** [https://github.com/Juasaisi/Tp-dsoft-com04](https://github.com/Juasaisi/Tp-dsoft-com04)
+- **Repositorio de la cátedra:** [https://github.com/utnfrrodsw/tp](https://github.com/utnfrrodsw/tp)
 
-## Alcance Funcional 
+## ¿De qué trata el proyecto?
 
-### Alcance Mínimo
+**Ámbar** es una aplicación web full stack diseñada para la gestión comercial y administrativa de un emprendimiento de accesorios artesanales.
 
+El sistema busca reemplazar los registros informales y manuales, centralizando en una plataforma digital:
+- El catálogo de **productos** y el control de su inventario.
+- La administración y seguimiento de **clientes**.
+- El registro de **ventas**, calculando subtotales, totales y controlando el stock disponible.
+- La consulta histórica de ventas con el desglose detallado de sus ítems.
 
-Regularidad:
-|Req|Detalle|
-|:-|:-|
-|CRUD simple|1. CRUD Producto (nombre, descripción, precio, stock) <br>2.  CRUD Cliente (nombre, contacto)
-|CRUD dependiente|1. 1. CRUD Venta (depende de Producto y Cliente)
-|Listado<br>+<br>detalle| 1. Listado de productos → detalle completo  <br>2. Listado de ventas → detalle con productos y total
+## Tecnologías utilizadas
 
+El proyecto está desarrollado bajo una arquitectura desacoplada en dos partes comunicadas mediante una **API REST**:
 
-Adicionales para Aprobación
-|Req|Detalle|
-|:-|:-|
-|CRUD |1. CRUD Producdto<br>2. CRUD Cliente<br>3. CRUD Material<br>4. CRUD Venta<br>5. CRUD Categoria<br>|
-|CUU/Epic| 1. Registrar una venta → descuenta stock automáticamente. <br>2. Consultar stock disponible → muestra productos y materiales por agotarse
+- **Backend:** NestJS, TypeScript, TypeORM y base de datos relacional MySQL. Documentación interactiva con Swagger OpenAPI.
+- **Frontend:** Angular (Standalone Components), TypeScript, HTML5, SCSS y Bootstrap (diseño responsive mobile-first).
 
+## Cómo correrlo
 
+Para ejecutar el proyecto en tu entorno local es necesario tener instalados **Node.js** (v18 o superior), **npm** y un servidor **MySQL** activo (mediante XAMPP, MySQL Workbench o servicio local).
 
-### Alcance Adicional Voluntario
+### 1. Clonar el repositorio
 
+```bash
+git clone -b develop https://github.com/Juasaisi/Tp-dsoft-com04.git
+cd Tp-dsoft-com04
+```
 
-|Req|Detalle|
-|:-|:-|
-|Listados |1. Listado de productos con filtro por bajo stock (productos por agotarse).<br>2. Listado de ventas con filtro por rango de fechas.<br>3. Listado de materiales ordenado por cantidad disponible 
-|CUU/Epic|1. 1. Registrar una venta → descuenta stock automáticamente. <br>2. Registrar compra de materiales → actualiza stock. <br>3. Ver resumen de ingresos por período
+### 2. Configurar la base de datos
+
+1. Iniciar el servicio de MySQL.
+2. Crear una base de datos llamada `base` (o el nombre configurado en el archivo de conexión).
+3. Verificar los datos de conexión en el backend:
+   `backend/src/config/typeorm.config.ts`
+
+### 3. Ejecutar el Backend (NestJS)
+
+Abrir una terminal en la carpeta del backend:
+
+```bash
+cd backend
+npm install
+npm run start:dev
+```
+
+El backend se iniciará en `http://localhost:3000`.
+
+* Documentación viva de Swagger: [http://localhost:3000/swagger](http://localhost:3000/swagger)
+* Prefijo global de la API: `/api/v1`
+
+### 4. Ejecutar el Frontend (Angular)
+
+Abrir una segunda terminal en la carpeta del frontend:
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+Abrir la aplicación en el navegador web:
+👉 [http://localhost:4200](http://localhost:4200)
+
+> **Nota:** Para que la aplicación funcione de forma integral, deben estar ejecutándose en simultáneo MySQL, el backend (puerto 3000) y el frontend (puerto 4200).
+
+## Alcance del Trabajo Práctico (Regularidad)
+
+Para la instancia de regularidad (grupo de 2 integrantes), el sistema cubre los requisitos exigidos por la cátedra:
+
+| Requisito | Detalle funcional | Implementación |
+| :--- | :--- | :--- |
+| **CRUD Simple 1** | Gestión de Clientes | Alta, baja, modificación, listado y panel de detalle de clientes. |
+| **CRUD Simple 2** | Gestión de Productos | Alta, baja, modificación, listado y panel de detalle de productos. |
+| **CRUD Dependiente** | Gestión de Ventas | Una venta depende de un cliente existente y se compone de múltiples ítems de detalle asociados a productos. |
+| **Listados con filtro y detalle** | Búsqueda y desglose | • Listado de productos filtrable por nombre/descripción y alerta de stock bajo (≤ 5).<br>• Listado de ventas con filtro por fechas y modal de detalle completo con renglones y totales. |
+| **CUU / Epic de Negocio** | Registrar una venta | Selección de cliente, carga dinámica de productos con cantidades, cálculo de subtotales y total en tiempo real, validación de stock y persistencia en MySQL. |
+| **UX/UI & Mobile-First** | Frontend Angular | Navbar superior unificada, adaptabilidad en 3 breakpoints (SM, MD, LG) y manejo amigable de errores sin bloqueos de interfaz. |
+
+## Propuesta original y documentación
+
+-- La propuesta y el alcance funcional del sistema se encuentran en [proposal.md](proposal.md).
+- El modelo entidad-relación y diagramas pueden consultarse en [Diagrams.net](https://app.diagrams.net/#G1T11jYeY_qR7FxvZmBbJ7FdSLdI3C0bG_#%7B%22pageId%22%3A%22FupV3o8o4jS1qKbRf3Cx%22%7D)
