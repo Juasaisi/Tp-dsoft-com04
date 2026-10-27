@@ -136,12 +136,11 @@
     </div>
   </section>
 
-  <!-- FICHA DE DETALLE DE VENTA (Requisito de regularidad) -->
   <section *ngIf="ventaSeleccionada" class="card-detalle">
     <div class="detalle-header">
-      <div class="detalle-avatar">#{{ ventaSeleccionada.idVenta }}</div>
+      <div class="detalle-avatar">#{{ ventaSeleccionada.idventa || ventaSeleccionada.idVenta }}</div>
       <div class="detalle-titles">
-        <h3>Venta #{{ ventaSeleccionada.idVenta }}</h3>
+        <h3>Venta #{{ ventaSeleccionada.idventa || ventaSeleccionada.idVenta }}</h3>
         <span class="detalle-id">Fecha: {{ (ventaSeleccionada.date || ventaSeleccionada.fecha) | date:'dd/MM/yyyy HH:mm' }}</span>
       </div>
       <button class="btn-icon-cerrar" (click)="cerrarDetalle()">✕</button>
@@ -151,8 +150,8 @@
       <div class="dato-item">
         <span class="label">Cliente</span>
         <span class="valor">
-          {{ (ventaSeleccionada.client?.name || ventaSeleccionada.cliente?.nombre || 'General') }} 
-          {{ (ventaSeleccionada.client?.surname || ventaSeleccionada.cliente?.apellido || '') }}
+          {{ (ventaSeleccionada.cliente?.name || ventaSeleccionada.client?.name || 'General') }}
+          {{ ventaSeleccionada.cliente?.surname || ventaSeleccionada.client?.surname || '' }}
         </span>
       </div>
       <div class="dato-item">
@@ -169,18 +168,24 @@
             <th>Producto</th>
             <th class="text-center">Cant.</th>
             <th class="text-right">Subtotal</th>
+            <th>Acciones</th>
           </tr>
         </thead>
-        <tbody>
-          <tr *ngFor="let det of (ventaSeleccionada.saleDetails || ventaSeleccionada.detalles)">
-            <td>{{ det.product?.name || det.producto?.nombre || 'Artículo' }}</td>
-            <td class="text-center">{{ det.quantity || det.cantidad }}</td>
-            <td class="text-right">${{ (det.subtotal || 0) | number:'1.2-2' }}</td>
-          </tr>
-          <tr *ngIf="!(ventaSeleccionada.saleDetails?.length || ventaSeleccionada.detalles?.length)">
-            <td colspan="3" class="text-center text-muted">Sin detalles registrados en este comprobante.</td>
-          </tr>
-        </tbody>
+<tbody>
+  <tr *ngFor="let det of (ventaSeleccionada.saleDetails || ventaSeleccionada.detalles)">
+    <td>{{ det.product?.name || det.producto?.nombre || 'Artículo' }}</td>
+    <td class="text-center">{{ det.quantity || det.cantidad }}</td>
+    <td class="text-right">${{ (det.subtotal || 0) | number:'1.2-2' }}</td>
+    <td>
+      <button class="btn-chip btn-detalle" (click)="editarDetalle(det)">Editar</button>
+      <button class="btn-chip btn-borrar" (click)="eliminarDetalle(det)">Eliminar</button>
+    </td>
+  </tr>
+
+  <tr *ngIf="!(ventaSeleccionada.saleDetails?.length || ventaSeleccionada.detalles?.length)">
+    <td colspan="4" class="text-center text-muted">Sin detalles registrados en este comprobante.</td>
+  </tr>
+</tbody>
       </table>
     </div>
   </section>
@@ -206,7 +211,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let v of ventasFiltradas">
-            <td class="td-id">#{{ v.idVenta }}</td>
+            <td class="td-id">#{{ v.idventa || v.idVenta }}</td>
             <td>{{ (v.date || v.fecha) | date:'dd/MM/yyyy HH:mm' }}</td>
             <td class="td-cliente">
               {{ v.cliente?.name || v.client?.name || 'Cliente General' }}
@@ -243,3 +248,43 @@
   (confirmar)="confirmarAnulacion()"
   (cancelar)="cancelarAnulacion()">
 </app-confirm-dialog>
+<app-confirm-dialog
+  *ngIf="detalleAEliminar"
+  titulo="Eliminar detalle de venta"
+  mensaje="¿Estás seguro de que querés quitar este producto de la venta? Se devolverán las unidades al stock."
+  textoConfirmar="Eliminar"
+  [peligro]="true"
+  (confirmar)="confirmarEliminacionDetalle()"
+  (cancelar)="cancelarEliminacionDetalle()">
+</app-confirm-dialog>
+<div *ngIf="detalleAEditar" class="modal-overlay">
+  <div class="modal-content">
+    <h3>Editar cantidad</h3>
+
+    <p>Ingresá la nueva cantidad del producto:</p>
+
+    <input
+      type="number"
+      min="1"
+      step="1"
+      [(ngModel)]="nuevaCantidadDetalle"
+      class="form-control"
+    />
+
+    <div class="modal-actions">
+      <button
+        type="button"
+        class="btn-chip"
+        (click)="cancelarEdicionDetalle()">
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="btn-chip btn-detalle"
+        (click)="confirmarEdicionDetalle()">
+        Guardar cambios
+      </button>
+    </div>
+  </div>
+</div>

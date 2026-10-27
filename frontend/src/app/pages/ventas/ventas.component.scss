@@ -519,6 +519,11 @@
           font-size: 0.75rem;
           font-weight: 600;
           cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 72px;
+          min-height: 30px;
 
           &.btn-detalle {
             background: #f4ece6;
@@ -552,4 +557,75 @@
       }
     }
   }
+}
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+}
+
+.modal-content .form-control {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+.btn-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  min-height: 30px;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-chip.btn-detalle {
+  background: #f4ece6;
+  color: #8c5b3f;
+}
+
+.btn-chip.btn-detalle:hover {
+  background: #eaddd3;
+}
+
+.btn-chip.btn-borrar {
+  background: #fff;
+  border-color: #f1d2cb;
+  color: #c0392b;
+}
+
+.btn-chip.btn-borrar:hover {
+  background: #fdf0ed;
 }

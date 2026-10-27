@@ -30,6 +30,7 @@ export interface Producto {
 
 export interface DetalleVenta {
   idDetalle?: number;
+  idsale_d?: number;
   product?: Producto;
   producto?: Producto;
   quantity?: number;
@@ -39,6 +40,7 @@ export interface DetalleVenta {
 
 export interface Venta {
   idVenta?: number;
+  idventa?: number;
   date?: string;
   fecha?: string;
   total?: number;
@@ -64,6 +66,9 @@ interface RenglonItem {
 })
 export class VentasComponent implements OnInit {
   ventaAAnular: Venta | null = null;
+  detalleAEliminar: DetalleVenta | null = null;
+  detalleAEditar: DetalleVenta | null = null;
+  nuevaCantidadDetalle: number = 1;
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
 
@@ -259,6 +264,79 @@ export class VentasComponent implements OnInit {
   cerrarDetalle(): void {
     this.ventaSeleccionada = null;
   }
+
+editarDetalle(det: DetalleVenta): void {
+  this.detalleAEditar = det;
+  this.nuevaCantidadDetalle = det.cantidad ?? det.quantity ?? 1;
+}
+
+cancelarEdicionDetalle(): void {
+  this.detalleAEditar = null;
+}
+
+confirmarEdicionDetalle(): void {
+  const det = this.detalleAEditar;
+  if (!det) return;
+
+  const id = det.idsale_d || det.idDetalle;
+  if (!id) return;
+
+  const cantidad = Number(this.nuevaCantidadDetalle);
+
+  if (!Number.isInteger(cantidad) || cantidad <= 0) {
+    this.mostrarNotificacion('Ingresá una cantidad entera mayor a cero.');
+    return;
+  }
+
+  this.http.patch(
+    `http://localhost:3000/api/v1/detalle-venta/${id}`,
+    { cantidad }
+  ).subscribe({
+    next: () => {
+      this.detalleAEditar = null;
+      this.mostrarNotificacion('Cantidad actualizada.');
+      this.cerrarDetalle();
+      this.cargarDatos();
+    },
+    error: (err) => {
+      console.error('Error al modificar detalle:', err);
+      this.errorMsg = 'No se pudo modificar el detalle.';
+      this.cdr.markForCheck();
+    }
+  });
+}
+
+eliminarDetalle(det: DetalleVenta): void {
+  this.detalleAEliminar = det;
+}
+
+cancelarEliminacionDetalle(): void {
+  this.detalleAEliminar = null;
+}
+confirmarEliminacionDetalle(): void {
+  const det = this.detalleAEliminar;
+  this.detalleAEliminar = null;
+
+  if (!det) return;
+
+  const id = det.idsale_d || det.idDetalle;
+  if (!id) return;
+
+  this.http.delete(
+    `http://localhost:3000/api/v1/detalle-venta/${id}`
+  ).subscribe({
+    next: () => {
+      this.mostrarNotificacion('Detalle eliminado correctamente.');
+      this.cerrarDetalle();
+      this.cargarDatos();
+    },
+    error: (err) => {
+      console.error('Error al eliminar detalle:', err);
+      this.errorMsg = 'No se pudo eliminar el detalle.';
+      this.cdr.markForCheck();
+    }
+  });
+}
 
 eliminarVenta(v: Venta): void {
   this.ventaAAnular = v;

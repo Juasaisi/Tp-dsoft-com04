@@ -95,6 +95,23 @@ constructor(
       },
     });
   }
+
+async findDetalle(id: number) {
+  const detalle = await this.detalleRepository.findOne({
+    where: { idsale_d: id },
+    relations: {
+      venta: true,
+      producto: true,
+    },
+  });
+
+  if (!detalle) {
+    throw new NotFoundException('Detalle de venta no encontrado');
+  }
+
+  return detalle;
+}
+
   async updateDetalle(id: number, dto: UpdateSaleDetailsDto) {
   return this.dataSource.transaction(async (manager) => {
     const detalle = await manager.findOne(Sale_details, {
@@ -111,6 +128,12 @@ constructor(
     }
 
     const diferencia = dto.cantidad - detalle.cantidad;
+
+    if (diferencia > 0 && detalle.producto.eliminado) {
+      throw new ConflictException(
+        'No se puede aumentar la cantidad de un producto dado de baja'
+      );
+    }
 
     if (diferencia > 0 && detalle.producto.stock < diferencia) {
       throw new BadRequestException('Stock insuficiente');
@@ -165,19 +188,5 @@ async deleteDetalle(id: number) {
     return { mensaje: 'Detalle eliminado correctamente' };
   });
 }
-async findDetalle(id: number) {
-  const detalle = await this.detalleRepository.findOne({
-    where: { idsale_d: id },
-    relations: {
-      venta: true,
-      producto: true,
-    },
-  });
 
-  if (!detalle) {
-    throw new NotFoundException('Detalle de venta no encontrado');
-  }
-
-  return detalle;
-}
 }
