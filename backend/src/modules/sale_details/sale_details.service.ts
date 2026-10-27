@@ -134,4 +134,35 @@ constructor(
     return detalle;
   });
 }
+async deleteDetalle(id: number) {
+  return this.dataSource.transaction(async (manager) => {
+    const detalle = await manager.findOne(Sale_details, {
+      where: { idsale_d: id },
+      relations: { venta: true, producto: true },
+    });
+
+    if (!detalle) {
+      throw new NotFoundException('Detalle de venta no encontrado');
+    }
+
+    if (detalle.venta.delete) {
+      throw new ConflictException(
+        'No se puede modificar una venta eliminada',
+      );
+    }
+
+    // Devolvemos al stock las unidades del detalle.
+    detalle.producto.stock += detalle.cantidad;
+
+    // Restamos el subtotal del total de la venta.
+    detalle.venta.total =
+      Number(detalle.venta.total) - Number(detalle.subtotal);
+
+    await manager.save(detalle.producto);
+    await manager.save(detalle.venta);
+    await manager.remove(detalle);
+
+    return { mensaje: 'Detalle eliminado correctamente' };
+  });
+}
 }

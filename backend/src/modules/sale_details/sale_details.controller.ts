@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Delete,
 } from '@nestjs/common';
 
 import { Sale_detailsDto } from './dto/sale_details-dto';
@@ -37,5 +38,9 @@ updateDetalle(
   @Body() dto: UpdateSaleDetailsDto,
 ) {
   return this.saleDetailsService.updateDetalle(id, dto);
+}
+@Delete(':id')
+deleteDetalle(@Param('id', ParseIntPipe) id: number) {
+  return this.saleDetailsService.deleteDetalle(id);
 }
 }
