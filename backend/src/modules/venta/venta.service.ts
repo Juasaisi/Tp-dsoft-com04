@@ -137,8 +137,15 @@ export class VentaService {
   }
 
   async findAll() {
-    return this.ventaRepository.find();
-  }
+  return this.ventaRepository.find({
+    relations: {
+      cliente: true,
+      detalles: {
+        producto: true
+      }
+    }
+  });
+}
 
   async updateVenta(venta: VentaDto) {
     return this.ventaRepository.save(venta);
