@@ -259,9 +259,22 @@ export class VentasComponent implements OnInit {
     });
   }
 
-  verDetalle(v: Venta): void {
-    this.ventaSeleccionada = v;
-  }
+verDetalle(v: Venta): void {
+  this.http.get<Venta>(`${this.apiUrlVentas}/${v.idventa}`).subscribe({
+    next: (venta) => {
+      this.ventaSeleccionada = venta;
+      this.cdr.markForCheck();
+    },
+    error: (err) => {
+      console.error('Error al obtener el detalle de la venta:', err);
+      this.errorMsg = this.mensajeDeError(
+        err,
+        'No se pudo cargar el detalle de la venta.'
+      );
+      this.cdr.markForCheck();
+    }
+  });
+}
 
   cerrarDetalle(): void {
     this.ventaSeleccionada = null;
