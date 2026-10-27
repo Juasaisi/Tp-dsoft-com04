@@ -209,8 +209,8 @@
             <td class="td-id">#{{ v.idVenta }}</td>
             <td>{{ (v.date || v.fecha) | date:'dd/MM/yyyy HH:mm' }}</td>
             <td class="td-cliente">
-              {{ (v.client?.name || v.cliente?.nombre || 'Cliente General') }} 
-              {{ (v.client?.surname || v.cliente?.apellido || '') }}
+              {{ v.cliente?.name || v.client?.name || 'Cliente General' }}
+              {{ v.cliente?.surname || v.client?.surname || '' }}
             </td>
             <td class="td-total">${{ (v.total || 0) | number:'1.2-2' }}</td>
             <td class="td-acciones">
