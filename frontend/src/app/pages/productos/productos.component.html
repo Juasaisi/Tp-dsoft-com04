@@ -187,3 +187,12 @@
     </div>
   </section>
 </div>
+<app-confirm-dialog
+  *ngIf="productoAEliminar"
+  titulo="Eliminar producto"
+  mensaje="¿Estás seguro de que querés eliminar este producto?"
+  textoConfirmar="Eliminar"
+  [peligro]="true"
+  (confirmar)="confirmarEliminacion()"
+  (cancelar)="cancelarEliminacion()">
+</app-confirm-dialog> 
