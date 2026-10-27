@@ -128,13 +128,23 @@ export class VentaService {
     return await this.ventaRepository.save(nuevaVenta);
   }
 
-  async findVenta(idventa: number) {
-    const venta = await this.ventaRepository.findOneBy({ idventa: idventa });
-    if (!venta) {
-      throw new NotFoundException('Venta no encontrada');
+async findVenta(idventa: number) {
+  const venta = await this.ventaRepository.findOne({
+    where: { idventa: Number(idventa) },
+    relations: {
+      cliente: true,
+      detalles: {
+        producto: true
+      }
     }
-    return venta;
+  });
+
+  if (!venta) {
+    throw new NotFoundException('Venta no encontrada');
   }
+
+  return venta;
+}
 
   async findAll() {
   return this.ventaRepository.find({

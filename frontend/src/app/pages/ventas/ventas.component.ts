@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
+import { VentasService } from '../../services/ventas.service';
 
 // 1. Interfaces del modelo de datos para Ventas
 export interface Cliente {
@@ -70,6 +71,7 @@ export class VentasComponent implements OnInit {
   detalleAEditar: DetalleVenta | null = null;
   nuevaCantidadDetalle: number = 1;
   private http = inject(HttpClient);
+  private ventasService = inject(VentasService);
   private cdr = inject(ChangeDetectorRef);
 
   // Endpoints del backend NestJS
@@ -242,7 +244,7 @@ export class VentasComponent implements OnInit {
     this.cargando = true;
     this.errorMsg = '';
 
-    this.http.post(this.apiUrlVentas, payload).subscribe({
+    this.ventasService.registrarVenta(this.apiUrlVentas, payload).subscribe({
       next: () => {
         this.mostrarNotificacion('¡Venta registrada con éxito!');
         this.cerrarFormulario();
