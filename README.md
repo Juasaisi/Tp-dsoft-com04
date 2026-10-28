@@ -1,4 +1,4 @@
-# Ambar
+# Ámbar
 
 Trabajo Práctico de Desarrollo de Software — UTN Facultad Regional Rosario (Comisión 304).
 
@@ -14,7 +14,7 @@ Trabajo Práctico de Desarrollo de Software — UTN Facultad Regional Rosario (C
 
 ## ¿De qué trata el proyecto?
 
-**SigmaOS** es una aplicación web full stack diseñada para la gestión comercial y administrativa de un emprendimiento de accesorios artesanales.
+**ÁMBAR** es una aplicación web full stack diseñada para la gestión comercial y administrativa de un emprendimiento de accesorios artesanales.
 
 El sistema busca reemplazar los registros informales y manuales, centralizando en una plataforma digital:
 - El catálogo de **productos** y el control de su inventario.
@@ -73,7 +73,7 @@ npm start
 ```
 
 Abrir la aplicación en el navegador web:
-👉 [http://localhost:4200](http://localhost:4200)
+ [http://localhost:4200](http://localhost:4200)
 
 > **Nota:** Para que la aplicación funcione de forma integral, deben estar ejecutándose en simultáneo MySQL, el backend (puerto 3000) y el frontend (puerto 4200).
 
