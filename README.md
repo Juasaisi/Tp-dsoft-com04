@@ -1,4 +1,4 @@
-# SigmaOS
+# Ambar
 
 Trabajo Práctico de Desarrollo de Software — UTN Facultad Regional Rosario (Comisión 304).
 
